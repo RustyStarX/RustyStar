@@ -7,6 +7,8 @@ jobs:
   release:
     name: Release on ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
+    env:
+      RUST_BIN_NAME: "RustyStar"
     strategy:
       fail-fast: false
       matrix:
@@ -37,8 +39,8 @@ jobs:
       - name: Prepare assets
         shell: bash
         run: |
-          mv target/${{ matrix.target }}/release/RustyStar${{ matrix.suffix }} .
-          tar -cvzf ${{ matrix.target }}.tar.gz LICENSE README.md RustyStar${{ matrix.suffix }}
+          mv target/${{ matrix.target }}/release/${{ env.RUST_BIN_NAME }}${{ matrix.suffix }} .
+          tar -cvzf ${{ matrix.target }}.tar.gz LICENSE README.md ${{ env.RUST_BIN_NAME }}${{ matrix.suffix }}
       - name: Declare some variables
         id: vars
         shell: bash
