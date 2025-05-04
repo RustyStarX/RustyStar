@@ -22,3 +22,9 @@ windows = { version = "0.61", features = [
 [[bin]]
 name = "RustyStar"
 path = "./src/main.rs"
+
+[profile.release]
+lto = true
+strip = true
+panic = "abort"
+codegen-units = 1
