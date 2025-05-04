@@ -1,4 +1,4 @@
-use spdlog::info;
+use spdlog::{info, warn};
 use win32_ecoqos::{
     process::toggle_efficiency_mode,
     utils::{Process, Processes},
@@ -44,10 +44,12 @@ pub fn process_child_process(enable: Option<bool>, pid: u32) -> windows_result::
         ..
     } in procs
     {
-        if should_bypass(process_name) {
+        if should_bypass(&process_name) {
             continue;
         }
-        _ = toggle_efficiency_mode(process_id, enable).inspect_err(log_warn);
+        if let Err(e) = toggle_efficiency_mode(process_id, enable) {
+            warn!("failed to toggle {process_name:?}: {e}");
+        }
     }
 
     Ok(())
