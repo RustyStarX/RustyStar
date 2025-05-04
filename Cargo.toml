@@ -9,8 +9,11 @@ ctrlc = "3.4.6"
 kanal = "0.1.1"
 listen-new-proc = { git = "https://github.com/RustyStarX/fitgirl-ecoqos", version = "0.1.0" }
 spdlog-rs = "0.4.2"
-tokio = { version = "1.44.2", default-features = false, features = ["rt-multi-thread", "macros"] }
-win32-ecoqos = { version = "0.5.0", features = ["nightly"] }
+tokio = { version = "1.44.2", default-features = false, features = [
+    "rt-multi-thread",
+    "macros",
+] }
+win32-ecoqos = "0.5.0"
 windows = { version = "0.61", features = [
     "Win32_UI_WindowsAndMessaging",
     "Win32_UI_Accessibility",
