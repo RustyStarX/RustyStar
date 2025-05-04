@@ -5,7 +5,7 @@ use win32_ecoqos::{
     windows_result,
 };
 
-use crate::{bypass::should_bypass, logging::log_warn};
+use crate::bypass::should_bypass;
 
 pub fn process_child_process(enable: Option<bool>, pid: u32) -> windows_result::Result<()> {
     let action = match enable {
@@ -62,10 +62,12 @@ pub fn toggle_all(enable: Option<bool>) -> windows_result::Result<()> {
         ..
     } in Processes::try_new()?
     {
-        if should_bypass(process_name) {
+        if should_bypass(&process_name) {
             continue;
         }
-        _ = toggle_efficiency_mode(pid, enable).inspect_err(log_warn);
+        if let Err(e) = toggle_efficiency_mode(pid, enable) {
+            warn!("failed to toggle {process_name:?}: {e}");
+        }
     }
 
     Ok(())
