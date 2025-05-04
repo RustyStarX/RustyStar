@@ -63,7 +63,7 @@ pub fn toggle_all(enable: Option<bool>) -> windows_result::Result<()> {
         if should_bypass(process_name) {
             continue;
         }
-        _ = toggle_efficiency_mode(pid, enable);
+        _ = toggle_efficiency_mode(pid, enable).inspect_err(log_warn);
     }
 
     Ok(())
