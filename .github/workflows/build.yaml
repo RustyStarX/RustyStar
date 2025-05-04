@@ -1,6 +1,8 @@
 name: Build Releases
 on:
   push:
+    # limit to main branch
+    branches: [main]
 permissions:
   contents: write
 jobs:
@@ -30,6 +32,7 @@ jobs:
           # The prefix cache key, this can be changed to start a new cache manually.
           # default: "v0-rust"
           prefix-key: ${{ matrix.target }}
+          shared-key: "main"
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
