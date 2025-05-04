@@ -38,7 +38,15 @@ pub fn process_child_process(enable: Option<bool>, pid: u32) -> windows_result::
         info!("{action} process {pid:6}");
     }
 
-    for Process { process_id, .. } in procs {
+    for Process {
+        process_id,
+        process_name,
+        ..
+    } in procs
+    {
+        if should_bypass(process_name) {
+            continue;
+        }
         _ = toggle_efficiency_mode(process_id, enable).inspect_err(log_warn);
     }
 
