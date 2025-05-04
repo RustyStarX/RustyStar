@@ -23,17 +23,17 @@ jobs:
         with:
           # fix revision count
           fetch-depth: '0'
+      - uses: Swatinem/rust-cache@v2
+        with:
+          # The prefix cache key, this can be changed to start a new cache manually.
+          # default: "v0-rust"
+          prefix-key: ${{ matrix.target }}
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
           target: ${{ matrix.target }}
           args: "--locked --release"
           strip: true
-      - uses: Swatinem/rust-cache@v2
-        with:
-          # The prefix cache key, this can be changed to start a new cache manually.
-          # default: "v0-rust"
-          prefix-key: ${{ matrix.target }}
       - name: Prepare assets
         shell: bash
         run: |
