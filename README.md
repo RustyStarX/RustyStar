@@ -1,19 +1,20 @@
 # RustyStar
 
-EnergyStar alernative in Rust
+EnergyStar alernative in Rust.
 
-## Goals
+## Roadmap
 
 - [x] Multi Window support
-- [ ] Child processes support
+- [x] Child processes support
   - [x] Direct child processes
-  - [ ] Child process of child processes
+  - [ ] Process tree walking
 - [x] Event-based foreground window boost
-- [ ] Event-based blacklist throttle for non-GUI processes
-  > currently implemented in [fitgirl-ecoqos](https://github.com/mokurin000/fitgirl-ecoqos)
-- [ ] recover processes on exit
+- [x] Event-based throttle for all new processes
+- [x] Recover processes on exit
   - [x] Ctrl-C handle
   - [ ] windows terminate handle
+- [ ] Support UWP applications (`EnumChildWindows`)
+- [ ] Configurable whitelist and blacklist
 
 ## Non-goals (for now)
 
@@ -23,4 +24,4 @@ EnergyStar alernative in Rust
 
 ## Status
 
-Coming soon™
+Partially functional.
