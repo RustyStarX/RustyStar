@@ -3,7 +3,7 @@ use std::ffi::OsString;
 
 use ahash::AHashSet;
 use rustystar::privilege::try_enable_se_debug_privilege;
-use spdlog::{Level, LevelFilter, debug, info, warn};
+use spdlog::{Level, LevelFilter, debug, error, info, warn};
 use win32_ecoqos::process::toggle_efficiency_mode;
 
 use rustystar::bypass::should_bypass;
@@ -22,6 +22,21 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         },
     ));
 
+    let os_version = windows_version::OsVersion::current().build;
+    match () {
+        _ if os_version < 21359 => {
+            error!("EcoQoS is not supported on your system, found {os_version} < 21359");
+            return Ok(());
+        }
+        _ if os_version < 22621 => {
+            warn!("EcoQoS needs Windows 11 22H2 or newer to be most effective");
+        }
+        _ => {
+            info!("Congratulations! Your system will make best result");
+        }
+    }
+
+    info!("initializing whitelist...");
     let _ = WHITELIST.set(AHashSet::from_iter(
         [
             // ourself
@@ -66,6 +81,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         .map(OsString::from),
     ));
 
+    info!("registering Ctrl-C handler...");
     ctrlc::set_handler(|| {
         info!("received ctrl-c, recovering...");
         _ = toggle_all(None);
