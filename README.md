@@ -23,7 +23,7 @@ You can customize it's blacklist. It's by default a set of decompressors.
 - [x] Multi Window support
 - [x] Child processes support
   - [x] Direct child processes
-  - [ ] Process tree walking
+  - [x] Process tree walking
 - [x] Event-based foreground window boost
 - [x] Event-based throttle for all new processes
 - [x] Recover processes on exit

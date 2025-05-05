@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use spdlog::{info, warn};
 use win32_ecoqos::{
     process::toggle_efficiency_mode,
@@ -7,47 +9,61 @@ use win32_ecoqos::{
 
 use crate::bypass::should_bypass;
 
-pub fn process_child_process(enable: Option<bool>, pid: u32) -> windows_result::Result<()> {
+pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_result::Result<()> {
     let action = match enable {
         Some(true) => "throtting",
         Some(false) => "boosting ",
         None => "recovering",
     };
 
-    let procs = Processes::try_new()?
-        .filter(
-            |&Process {
-                 process_id,
-                 process_parent_id,
-                 ..
-             }| { process_id == pid || process_parent_id == pid },
-        )
-        .collect::<Vec<_>>();
+    let procs = Processes::try_new()?.collect::<Vec<_>>();
 
     if let Some(Process { process_name, .. }) = procs
         .iter()
-        .find(|Process { process_id, .. }| process_id == &pid)
+        .find(|Process { process_id, .. }| process_id == &main_pid)
     {
         if should_bypass(process_name) {
             info!("skipping whitelisted process: {process_name:?}");
             return Ok(());
         }
 
-        info!("{action} process {pid:6}: {process_name:?}");
+        info!("{action} process {main_pid:6}: {process_name:?}");
     } else {
-        info!("{action} process {pid:6}");
+        info!("{action} process {main_pid:6}");
     }
+
+    let relations = BTreeMap::from_iter(procs.iter().map(
+        |Process {
+             process_id,
+             process_parent_id,
+             ..
+         }| (process_id, process_parent_id),
+    ));
+    let in_process_tree = |mut pid: u32| {
+        while let Some(&&parent_pid) = relations.get(&pid) {
+            if parent_pid == main_pid {
+                return true;
+            }
+
+            pid = parent_pid;
+        }
+
+        false
+    };
 
     for Process {
         process_id,
         process_name,
         ..
-    } in procs
+    } in &procs
     {
-        if should_bypass(&process_name) {
+        if !in_process_tree(*process_id) {
             continue;
         }
-        if let Err(e) = toggle_efficiency_mode(process_id, enable) {
+        if should_bypass(process_name) {
+            continue;
+        }
+        if let Err(e) = toggle_efficiency_mode(*process_id, enable) {
             warn!("failed to toggle {process_name:?}: {e}");
         }
     }
