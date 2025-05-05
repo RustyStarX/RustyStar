@@ -15,6 +15,7 @@ EnergyStar alernative in Rust.
   - [ ] windows terminate handle
 - [x] Support UWP applications
 - [x] Support `SYSTEM` privileged processes
+  > You must run `RustyStar.exe` as administrator to throttle them!
 - [ ] Configurable whitelist and blacklist
 
 ## Non-goals (for now)
