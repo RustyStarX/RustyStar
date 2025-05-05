@@ -2,7 +2,8 @@ use std::error::Error;
 use std::ffi::OsString;
 
 use ahash::AHashSet;
-use spdlog::{Level, LevelFilter, debug, info};
+use rustystar::privilege::try_enable_se_debug_privilege;
+use spdlog::{Level, LevelFilter, debug, info, warn};
 use win32_ecoqos::process::toggle_efficiency_mode;
 
 use rustystar::bypass::should_bypass;
@@ -17,20 +18,44 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     let _ = WHITELIST.set(AHashSet::from_iter(
         [
+            // ourself
+            "RustyStar.exe",
             // System processes
             "explorer.exe",
+            // Windows Manager of Windows
             "dwm.exe",
+            // CSRSS core process
             "csrss.exe",
+            // Windows services process
             "svchost.exe",
+            // Task Manager
             "Taskmgr.exe",
+            // Session Manager Subsystem
             "smss.exe",
+            // Chinese input method
             "ChsIME.exe",
+            // Speech-To-Text, Screen keyboard, handwrite input, e.g.
             "ctfmon.exe",
+            // Windows User Mode Driver Framework
             "WUDFRd.exe",
+            "WUDFHost.exe",
             // Edge is energy aware
             "msedge.exe",
             // UWP special handle
             "ApplicationFrameHost.exe",
+            // system itself
+            "[System Process]",
+            "System",
+            "Registry",
+            // parent of "services.exe"
+            "wininit.exe",
+            // parent of "svchost.exe", "wudfhost.exe", e.g.
+            "services.exe",
+            // Local Security Authority Subsystem Service
+            "lsass.exe",
+            // part of the Windows Security Center,
+            // responsible for monitoring and reporting the security status of your system
+            "SecurityHealthService.exe",
         ]
         .map(OsString::from),
     ));
@@ -40,6 +65,15 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         _ = toggle_all(None);
         std::process::exit(0);
     })?;
+
+    match try_enable_se_debug_privilege() {
+        Ok(_) => {
+            info!("SeDebugPriviledge enabled!");
+        }
+        Err(e) => {
+            warn!("SeDebugPriviledge enable failed: {e}");
+        }
+    }
 
     info!("throtting all processes...");
     tokio::task::spawn_blocking(|| toggle_all(Some(true))).await??;

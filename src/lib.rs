@@ -6,6 +6,7 @@ use kanal::Sender;
 pub mod bypass;
 pub mod events;
 pub mod logging;
+pub mod privilege;
 pub mod utils;
 
 pub static PID_SENDER: OnceLock<Sender<u32>> = OnceLock::new();

@@ -14,6 +14,7 @@ EnergyStar alernative in Rust.
   - [x] Ctrl-C handle
   - [ ] windows terminate handle
 - [x] Support UWP applications
+- [x] Support `SYSTEM` privileged processes
 - [ ] Configurable whitelist and blacklist
 
 ## Non-goals (for now)

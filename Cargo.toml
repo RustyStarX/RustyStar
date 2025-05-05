@@ -16,8 +16,12 @@ tokio = { version = "1.44.2", default-features = false, features = [
 ] }
 win32-ecoqos = "0.5.0"
 windows = { version = "0.61", features = [
-    "Win32_UI_WindowsAndMessaging",
+    # UI event hook
     "Win32_UI_Accessibility",
+    # foreground event id, enter event loop
+    "Win32_UI_WindowsAndMessaging",
+    # enable SeDebugPrivilege for SYSTEM processes
+    "Win32_Security",
 ] }
 
 [build-dependencies]
