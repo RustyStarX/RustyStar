@@ -13,7 +13,7 @@ EnergyStar alernative in Rust.
 - [x] Recover processes on exit
   - [x] Ctrl-C handle
   - [ ] windows terminate handle
-- [ ] Support UWP applications (`EnumChildWindows`)
+- [x] Support UWP applications
 - [ ] Configurable whitelist and blacklist
 
 ## Non-goals (for now)
