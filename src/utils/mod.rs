@@ -33,14 +33,14 @@ pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_res
     }
 
     let relations = BTreeMap::from_iter(procs.iter().map(
-        |Process {
+        |&Process {
              process_id,
              process_parent_id,
              ..
          }| (process_id, process_parent_id),
     ));
     let in_process_tree = |mut pid: u32| {
-        while let Some(&&parent_pid) = relations.get(&pid) {
+        while let Some(&parent_pid) = relations.get(&pid) {
             if parent_pid == 0 {
                 return false;
             }
