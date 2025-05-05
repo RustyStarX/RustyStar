@@ -4,6 +4,7 @@ use ahash::AHashSet;
 use kanal::Sender;
 
 pub mod bypass;
+pub mod config;
 pub mod events;
 pub mod logging;
 pub mod privilege;

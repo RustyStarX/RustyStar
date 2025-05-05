@@ -12,11 +12,11 @@ EnergyStar alernative in Rust.
 
 ## I only want to throttle blacklisted ones
 
-See [fitgirl-ecoqos](https://github.com/RustyStarX/fitgirl-ecoqos),
-a tool that forces FitGirl repack unpacker processes to run on E-cores
-(Efficiency cores) for better system resource management.
+RustyStar now supports configuration.
 
-You can customize it's blacklist. It's by default a set of decompressors.
+Locate to `%AppData%/RustyStarX/RustyStar/config` and open `config.toml`,
+
+disable `listen_foreground_events` and switch mode of `listen_new_process` to `"blacklist_only"`, configure the blacklist.
 
 ## Roadmap
 
@@ -28,11 +28,11 @@ You can customize it's blacklist. It's by default a set of decompressors.
 - [x] Event-based throttle for all new processes
 - [x] Recover processes on exit
   - [x] Ctrl-C handle
-  - [ ] windows terminate handle
+  - [ ] windows wm_close event handle
 - [x] Support UWP applications
 - [x] Support `SYSTEM` privileged processes
   > You must run `RustyStar.exe` as administrator to throttle them!
-- [ ] Configurable whitelist and blacklist
+- [x] Configurable whitelist and blacklist
 
 ## What is the efficiency mode?
 

@@ -7,7 +7,7 @@ use win32_ecoqos::{
     windows_result,
 };
 
-use crate::bypass::should_bypass;
+use crate::bypass::whitelisted;
 
 pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_result::Result<()> {
     let action = match enable {
@@ -22,7 +22,7 @@ pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_res
         .iter()
         .find(|Process { process_id, .. }| process_id == &main_pid)
     {
-        if should_bypass(process_name) {
+        if whitelisted(process_name) {
             info!("skipping whitelisted process: {process_name:?}");
             return Ok(());
         }
@@ -63,7 +63,7 @@ pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_res
         if !in_process_tree(*process_id) {
             continue;
         }
-        if should_bypass(process_name) {
+        if whitelisted(process_name) {
             continue;
         }
         if let Err(e) = toggle_efficiency_mode(*process_id, enable) {
@@ -81,7 +81,7 @@ pub fn toggle_all(enable: Option<bool>) -> windows_result::Result<()> {
         ..
     } in Processes::try_new()?
     {
-        if should_bypass(&process_name) {
+        if whitelisted(&process_name) {
             continue;
         }
         if let Err(e) = toggle_efficiency_mode(pid, enable) {
