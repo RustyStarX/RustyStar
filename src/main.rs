@@ -14,7 +14,13 @@ use rustystar::{PID_SENDER, WHITELIST};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
-    spdlog::default_logger().set_level_filter(LevelFilter::MoreSevereEqual(Level::Debug));
+    spdlog::default_logger().set_level_filter(LevelFilter::MoreSevereEqual(
+        if cfg!(debug_assertions) {
+            Level::Debug
+        } else {
+            Level::Info
+        },
+    ));
 
     let _ = WHITELIST.set(AHashSet::from_iter(
         [
