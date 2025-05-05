@@ -18,6 +18,8 @@ Locate to `%AppData%/RustyStarX/RustyStar/config` and open `config.toml`,
 
 disable `listen_foreground_events` and switch mode of `listen_new_process` to `"blacklist_only"`, configure the blacklist.
 
+Check [wiki page of configuration](https://github.com/RustyStarX/RustyStar/wiki/Configuration) for more details.
+
 ## Roadmap
 
 - [x] Multi Window support
