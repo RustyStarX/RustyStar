@@ -2,14 +2,14 @@ use std::error::Error;
 use std::ffi::OsString;
 
 use ahash::AHashSet;
+use spdlog::{Level, LevelFilter, debug, info};
+use win32_ecoqos::process::toggle_efficiency_mode;
+
 use rustystar::bypass::should_bypass;
+use rustystar::events::enter_event_loop;
 use rustystar::logging::log_error;
 use rustystar::utils::{process_child_process, toggle_all};
 use rustystar::{PID_SENDER, WHITELIST};
-use spdlog::{Level, LevelFilter, debug, info};
-
-use rustystar::events::enter_event_loop;
-use win32_ecoqos::process::toggle_efficiency_mode;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
