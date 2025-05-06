@@ -1,6 +1,5 @@
 let rev_count = (git rev-list --count HEAD) | str trim;
-let current_version = (cargo metadata --format-version 1 --no-deps | from json).packages.0.version;
-let install_version = $current_version + "-" + $rev_count;
+let install_version = "0.1." + $rev_count;
 
 for $target in [aarch64-pc-windows-msvc x86_64-pc-windows-msvc] {
     (

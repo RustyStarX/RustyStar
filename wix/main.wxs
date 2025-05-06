@@ -58,7 +58,7 @@
 
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
 
-  <Product Id='FCEC9337-841B-4575-A038-5E27D39A7572' Name='RustyStar' UpgradeCode='CF254EDD-1080-4B3C-AC21-0DA2D316EA0E' Manufacturer='RustyStarX' Language='1033' Codepage='1252' Version='$(var.Version)'>
+  <Product Id='*' Name='RustyStar' UpgradeCode='CF254EDD-1080-4B3C-AC21-0DA2D316EA0E' Manufacturer='RustyStarX' Language='1033' Codepage='1252' Version='$(var.Version)'>
     <Package Id='*' Keywords='Installer' Description='EcoQoS throtting tool.' Manufacturer='RustyStarX' InstallerVersion='450' Languages='1033' Compressed='yes' InstallScope='perMachine' SummaryCodepage='1252'
             />
 
