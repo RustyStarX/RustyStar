@@ -4,10 +4,12 @@ EnergyStar alernative in Rust.
 
 ## Bundle instructions
 
+> NOTE: You must have MSVC for ARM64 and x86/x64 installed.
+
 To generate `msi` installer with `cargo-wix` and WiX Toolset v3.14, run:
 
 ```bash
-cargo wix -b "C:/Program Files (x86)/WiX Toolset v3.14/bin" -n RustyStar
+nu bundle.nu
 ```
 
 ## Suggested CPU
