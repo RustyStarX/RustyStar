@@ -1,5 +1,9 @@
-use std::{error::Error, fs, path::PathBuf};
+use std::{error::Error, path::PathBuf};
 
+use compio::{
+    fs::{self, File},
+    io::AsyncReadAtExt,
+};
 use serde::{Deserialize, Serialize};
 use spdlog::warn;
 
@@ -36,20 +40,26 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn from_profile() -> Result<Self, Box<dyn Error + Send + Sync>> {
+    pub async fn from_profile() -> Result<Self, Box<dyn Error + Send + Sync>> {
         let config_dir = directories::ProjectDirs::from("io", "RustyStarX", "RustyStar")
             .map(|d| d.config_dir().to_path_buf())
             .unwrap_or(PathBuf::from("."));
-        fs::create_dir_all(&config_dir)?;
+        fs::create_dir_all(&config_dir).await?;
 
         let config_path = config_dir.join("config.toml");
+
         if config_path.exists() {
-            Ok(toml::from_str(&fs::read_to_string(&config_path)?)?)
+            let file = File::open(&config_path).await?;
+            let result = file.read_to_end_at(Vec::with_capacity(4096), 0).await;
+            if !result.is_ok() {
+                Err("Failed to read configuration")?;
+            }
+            Ok(toml::from_str(&String::from_utf8_lossy(&result.1))?)
         } else {
             warn!("config not existing! falling back to default...");
             let config = Self::default();
             let serialized = toml::to_string_pretty(&config)?;
-            _ = fs::write(config_path, serialized).inspect_err(|e| {
+            _ = fs::write(config_path, serialized).await.0.inspect_err(|e| {
                 warn!("failed to write default config: {e}");
             });
             Ok(config)

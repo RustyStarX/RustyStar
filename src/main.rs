@@ -3,7 +3,6 @@ use std::ffi::OsString;
 
 use ahash::AHashSet;
 use spdlog::{Level, LevelFilter, debug, error, info, warn};
-use tokio::task::JoinSet;
 use win32_ecoqos::process::toggle_efficiency_mode;
 
 use rustystar::bypass::whitelisted;
@@ -14,8 +13,8 @@ use rustystar::privilege::try_enable_se_debug_privilege;
 use rustystar::utils::{process_child_process, toggle_all};
 use rustystar::{PID_SENDER, WHITELIST};
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
+#[compio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
     spdlog::default_logger().set_level_filter(LevelFilter::MoreSevereEqual(
         if cfg!(debug_assertions) {
             Level::Debug
@@ -38,7 +37,9 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         }
     }
 
-    let config = Config::from_profile()?;
+    let config = Config::from_profile()
+        .await
+        .expect("failed to load configuration!");
     info!("loaded configuration: {config:#?}");
     let Config {
         listen_new_process,
@@ -75,21 +76,21 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     if throttle_all_startup {
         info!("throtting all processes...");
-        tokio::task::spawn_blocking(|| toggle_all(Some(true))).await??;
+        _ = compio::runtime::spawn_blocking(|| toggle_all(Some(true))).await;
     }
 
-    let mut taskset = JoinSet::new();
+    let mut taskset = Vec::new();
     if listen_foreground_events.enabled {
         let (tx, rx) = kanal::bounded_async(64);
         let _ = PID_SENDER.set(tx.to_sync());
 
-        taskset.spawn_blocking(|| {
+        taskset.push(compio::runtime::spawn_blocking(|| {
             let _ = enter_event_loop().inspect_err(log_error);
             Ok(())
-        });
+        }));
 
         info!("listening foreground events...");
-        taskset.spawn(async move {
+        taskset.push(compio::runtime::spawn(async move {
             let mut last_pid = None;
 
             while let Ok(pid) = rx.recv().await {
@@ -101,21 +102,23 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
                         continue;
                     }
                     Some(last_pid) => {
-                        _ = tokio::task::spawn_blocking(move || {
+                        _ = compio::runtime::spawn_blocking(move || {
                             process_child_process(Some(true), last_pid)
                         })
-                        .await?;
+                        .await;
                     }
                     None => {}
                 }
 
-                _ = tokio::task::spawn_blocking(move || process_child_process(Some(false), pid))
-                    .await?;
+                _ = compio::runtime::spawn_blocking(move || {
+                    process_child_process(Some(false), pid)
+                })
+                .await;
                 last_pid = Some(pid);
             }
 
             Ok::<(), Box<dyn Error + Send + Sync>>(())
-        });
+        }));
     }
 
     if listen_new_process.enabled {
@@ -145,7 +148,9 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     }
 
     if !taskset.is_empty() {
-        taskset.join_all().await;
+        for task in taskset {
+            _ = task.await;
+        }
     } else {
         info!("one-shot mode detected! will leave processes throttled");
     }
