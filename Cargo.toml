@@ -3,6 +3,9 @@ name = "rustystar"
 version = "0.1.0"
 edition = "2024"
 description = "EcoQoS throtting tool."
+license = "MIT"
+authors = ["mokurin000"]
+documentation = "https://github.com/RustyStarX/RustyStar/wiki"
 
 [dependencies]
 ahash = "0.8.11"
@@ -40,3 +43,7 @@ lto = true
 strip = true
 panic = "abort"
 codegen-units = 1
+
+[package.metadata.bundle]
+identifier = "io.github.RustyStarX.RustyStar"
+resources = []
