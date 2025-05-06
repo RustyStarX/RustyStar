@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<!--
+  Copyright (C) 2017 Christopher R. Field.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!--
+  The "cargo wix" subcommand provides a variety of predefined variables available
+  for customization of this template. The values for each variable are set at
+  installer creation time. The following variables are available:
+
+  TargetTriple      = The rustc target triple name.
+  TargetEnv         = The rustc target environment. This is typically either
+                      "msvc" or "gnu" depending on the toolchain downloaded and
+                      installed.
+  TargetVendor      = The rustc target vendor. This is typically "pc", but Rust
+                      does support other vendors, like "uwp".
+  CargoTargetBinDir = The complete path to the directory containing the
+                      binaries (exes) to include. The default would be
+                      "target\release\". If an explicit rustc target triple is
+                      used, i.e. cross-compiling, then the default path would
+                      be "target\<CARGO_TARGET>\<CARGO_PROFILE>",
+                      where "<CARGO_TARGET>" is replaced with the "CargoTarget"
+                      variable value and "<CARGO_PROFILE>" is replaced with the
+                      value from the "CargoProfile" variable. This can also
+                      be overridden manually with the "target-bin-dir" flag.
+  CargoTargetDir    = The path to the directory for the build artifacts, i.e.
+                      "target".
+  CargoProfile      = The cargo profile used to build the binaries
+                      (usually "debug" or "release").
+  Version           = The version for the installer. The default is the
+                      "Major.Minor.Fix" semantic versioning number of the Rust
+                      package.
+-->
+
+<!--
+  Please do not remove these pre-processor If-Else blocks. These are used with
+  the `cargo wix` subcommand to automatically determine the installation
+  destination for 32-bit versus 64-bit installers. Removal of these lines will
+  cause installation errors.
+-->
+<?if $(sys.BUILDARCH) = x64 or $(sys.BUILDARCH) = arm64 ?>
+<?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
+<?else ?>
+<?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
+<?endif ?>
+
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+
+  <Product Id='FCEC9337-841B-4575-A038-5E27D39A7572' Name='RustyStar' UpgradeCode='CF254EDD-1080-4B3C-AC21-0DA2D316EA0E' Manufacturer='RustyStarX' Language='1033' Codepage='1252' Version='$(var.Version)'>
+
+    <Package Id='A7E430B4-4560-476B-AC69-881902B2EC95' Keywords='Installer' Description='EcoQoS throtting tool.' Manufacturer='RustyStarX' InstallerVersion='450' Languages='1033' Compressed='yes' InstallScope='perMachine' SummaryCodepage='1252'
+            />
+
+<MajorUpgrade Schedule='afterInstallInitialize' DowngradeErrorMessage='A newer version of [ProductName] is already installed. Setup will now exit.'/>
+
+    <Media Id='1' Cabinet='media1.cab' EmbedCab='yes' DiskPrompt='CD-ROM #1'/>
+    <Property Id='DiskPrompt' Value='RustyStar Installation'/>
+
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id='$(var.PlatformProgramFilesFolder)' Name='PFiles'>
+        <Directory Id='APPLICATIONFOLDER' Name='RustyStar'>
+          <Component Id='License' Guid='AC37937B-7C0D-4623-BFC6-8D077E46FC14'>
+            <File Id='LicenseFile' DiskId='1' Source='wix\License.rtf' KeyPath='yes'/>
+          </Component>
+
+          <Directory Id='Bin' Name='bin'>
+            <Component Id='binary0' Guid='C16C1AC5-3A41-4F70-91BC-5AEB6874ABD0'>
+              <File Id='exe0' Name='RustyStar.exe' DiskId='1' Source='$(var.CargoTargetBinDir)\RustyStar.exe' KeyPath='yes'/>
+            </Component>
+          </Directory>
+        </Directory>
+      </Directory>
+
+      <!-- Create shortcut on Start Menu -->
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="RustyStar"/>
+      </Directory>
+
+    </Directory>
+
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid='E542EDA1-532C-43E2-B357-67FE1E5AF55E'>
+        <Shortcut Id="ApplicationStartMenuShortcut" Name="RustyStar" Description="EcoQoS throtting tool" Target="[#exe0]" WorkingDirectory="APPLICATIONFOLDER"/>
+        <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\RustyStarX\RustyStar" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+
+    <Feature Id='Binaries' Title='Application' Description='Installs all binaries and the license.' Level='1' ConfigurableDirectory='APPLICATIONFOLDER' AllowAdvertise='no' Display='expand' Absent='disallow'>
+      <!--
+              Comment out or remove the following `ComponentRef` tag to remove
+              the license sidecar file from the installer.
+            -->
+      <ComponentRef Id='License'/>
+      <ComponentRef Id='binary0'/>
+
+      <!-- Tell WiX to install the shortcut -->
+      <ComponentRef Id="ApplicationShortcut" />
+    </Feature>
+
+    <SetProperty Id='ARPINSTALLLOCATION' Value='[APPLICATIONFOLDER]' After='CostFinalize'/>
+
+    <!-- Installer icon -->
+    <Icon Id="icon.ico" SourceFile="res\rustystar.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+
+    <Property Id='ARPHELPLINK' Value='https://github.com/RustyStarX/RustyStar/wiki'/>
+
+    <UI>
+      <UIRef Id='WixUI_FeatureTree'/>
+    </UI>
+
+    <WixVariable Id='WixUILicenseRtf' Value='wix\License.rtf'/>
+  </Product>
+
+</Wix>
