@@ -63,8 +63,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     if system_process {
         match try_enable_se_debug_privilege() {
-            Ok(_) => {
+            Ok(true) => {
                 info!("SeDebugPrivilege enabled!");
+            }
+            Ok(false) => {
+                warn!("SeDebugPrivilege enabled, but RustyStar wasn't evelated!");
             }
             Err(e) => {
                 warn!("SeDebugPrivilege enable failed: {e}");
