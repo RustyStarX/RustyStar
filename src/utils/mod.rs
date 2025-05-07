@@ -17,7 +17,6 @@ pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_res
     };
 
     let procs = Processes::try_new()?.collect::<Vec<_>>();
-
     if let Some(Process { process_name, .. }) = procs
         .iter()
         .find(|Process { process_id, .. }| process_id == &main_pid)
@@ -32,6 +31,11 @@ pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_res
         info!("{action} process {main_pid:6}");
     }
 
+    let pid_of_wininit = procs
+        .iter()
+        .find(|Process { process_name, .. }| process_name == "wininit.exe")
+        .map(|p| p.process_id);
+
     let relations = BTreeMap::from_iter(procs.iter().map(
         |&Process {
              process_id,
@@ -39,9 +43,14 @@ pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_res
              ..
          }| (process_id, process_parent_id),
     ));
-    let in_process_tree = |mut pid: u32| {
+    let in_process_tree = move |mut pid: u32| {
+        // first case: it self is root process
+        if pid == main_pid {
+            return true;
+        }
+
         while let Some(&parent_pid) = relations.get(&pid) {
-            if parent_pid == 0 {
+            if parent_pid == 0 || pid_of_wininit.is_some_and(|init| init == parent_pid) {
                 return false;
             }
             if parent_pid == main_pid {
