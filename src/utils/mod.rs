@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use rustc_hash::FxHashSet;
 use spdlog::{info, warn};
 use win32_ecoqos::{
     process::toggle_efficiency_mode,
@@ -31,11 +32,6 @@ pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_res
         info!("{action} process {main_pid:6}");
     }
 
-    let pid_of_wininit = procs
-        .iter()
-        .find(|Process { process_name, .. }| process_name == "wininit.exe")
-        .map(|p| p.process_id);
-
     let relations = BTreeMap::from_iter(procs.iter().map(
         |&Process {
              process_id,
@@ -49,8 +45,9 @@ pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_res
             return true;
         }
 
+        let mut met = FxHashSet::default();
         while let Some(&parent_pid) = relations.get(&pid) {
-            if parent_pid == 0 || pid_of_wininit.is_some_and(|init| init == parent_pid) {
+            if parent_pid == 0 || met.contains(&pid) {
                 return false;
             }
             if parent_pid == main_pid {
@@ -58,6 +55,7 @@ pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_res
             }
 
             pid = parent_pid;
+            met.insert(pid);
         }
 
         false
