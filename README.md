@@ -16,7 +16,7 @@ nu bundle.nu
 
 > [reference](https://devblogs.microsoft.com/performance-diagnostics/introducing-ecoqos/#supported-hardware)
 
-- Intel: 10gen or newer (not 12gen)
+- Intel: 10gen or newer
 - AMD: Ryzen 5000 Series or newer
 - Qualcomm: Basically all
 
