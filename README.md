@@ -70,6 +70,11 @@ According to [MSDN](https://learn.microsoft.com/en-us/windows/win32/procthread/q
 
 > Always selects most efficient CPU frequency and schedules
 
+And referring to [*Optimizing Software for x86
+Hybrid Architecture*](https://cdrdv2-public.intel.com/818776/348851-optimizing-x86-hybrid-cpus.pdf),
+
+> Similar to background threads, eco threads are also dynamically placed on the Efficient cores.
+
 ## Non-goals
 
 - Useless bloated GUI
