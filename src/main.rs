@@ -129,7 +129,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
             AHashSet::from_iter(listen_new_process.blacklist.iter().map(OsString::from));
         info!("listening new processes...");
         listen_new_proc::listen_process_creation(
-            move |listen_new_proc::Process { process_id, name }| {
+            move |listen_new_proc::Process {
+                      process_id, name, ..
+                  }| {
                 let proc_name = OsString::from(name);
                 match listen_new_process.mode {
                     rustystar::config::ListenNewProcessMode::Normal => {
