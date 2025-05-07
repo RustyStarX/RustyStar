@@ -47,7 +47,7 @@ pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_res
 
         let mut met = FxHashSet::default();
         while let Some(&parent_pid) = relations.get(&pid) {
-            if parent_pid == 0 || met.contains(&pid) {
+            if parent_pid == 0 || met.contains(&parent_pid) {
                 return false;
             }
             if parent_pid == main_pid {
