@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 use rustc_hash::FxHashSet;
-use spdlog::{info, warn};
+use spdlog::{debug, info, warn};
 use win32_ecoqos::{
     process::toggle_efficiency_mode,
     utils::{Process, Processes},
@@ -13,7 +13,7 @@ use crate::bypass::whitelisted;
 pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_result::Result<()> {
     let action = match enable {
         Some(true) => "throtting",
-        Some(false) => "boosting ",
+        Some(false) => "boosting",
         None => "recovering",
     };
 
@@ -23,13 +23,13 @@ pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_res
         .find(|Process { process_id, .. }| process_id == &main_pid)
     {
         if whitelisted(process_name) {
-            info!("skipping whitelisted process: {process_name:?}");
+            debug!("[{action:^10}] skipping {process_name:?}");
             return Ok(());
         }
 
-        info!("{action} process {main_pid:6}: {process_name:?}");
+        info!("[{action:^10}] process {main_pid:6}: {process_name:?}");
     } else {
-        info!("{action} process {main_pid:6}");
+        info!("[{action:^10}] process {main_pid:6}");
     }
 
     let relations = BTreeMap::from_iter(procs.iter().map(

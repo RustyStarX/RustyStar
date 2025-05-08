@@ -29,6 +29,8 @@ windows = { version = "0.61", features = [
     "Win32_UI_WindowsAndMessaging",
     # enable SeDebugPrivilege for SYSTEM processes
     "Win32_Security",
+    # SHQueryUserNotificationStat
+    "Win32_UI_Shell",
 ] }
 windows-version = "0.1.4"
 

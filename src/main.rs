@@ -2,7 +2,7 @@ use std::error::Error;
 use std::ffi::OsString;
 
 use ahash::AHashSet;
-use spdlog::{Level, LevelFilter, debug, error, info, warn};
+use spdlog::{Level, LevelFilter, debug, error, info, trace, warn};
 use win32_ecoqos::process::toggle_efficiency_mode;
 
 use rustystar::bypass::whitelisted;
@@ -12,6 +12,9 @@ use rustystar::logging::log_error;
 use rustystar::privilege::try_enable_se_debug_privilege;
 use rustystar::utils::{process_child_process, toggle_all};
 use rustystar::{PID_SENDER, WHITELIST};
+use windows::Win32::UI::Shell::{
+    QUNS_BUSY, QUNS_RUNNING_D3D_FULL_SCREEN, SHQueryUserNotificationState,
+};
 
 #[compio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -97,19 +100,25 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let mut last_pid = None;
 
             while let Ok(pid) = rx.recv().await {
-                debug!("received: {pid}");
+                trace!("received: {pid}");
 
                 match last_pid {
                     // skip boosting
                     Some(last) if last == pid => {
                         continue;
                     }
-                    Some(last_pid) => {
-                        _ = compio::runtime::spawn_blocking(move || {
-                            process_child_process(Some(true), last_pid)
-                        })
-                        .await;
-                    }
+                    Some(last_pid) => match unsafe { SHQueryUserNotificationState() } {
+                        Ok(QUNS_BUSY) | Ok(QUNS_RUNNING_D3D_FULL_SCREEN) => {
+                            debug!("detected full screen app! skip throttling");
+                        }
+                        _ => {
+                            _ = compio::runtime::spawn_blocking(move || {
+                                process_child_process(Some(true), last_pid)
+                            })
+                            .await;
+                        }
+                    },
+
                     None => {}
                 }
 
