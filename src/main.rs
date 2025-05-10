@@ -27,15 +27,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
     ));
 
     let os_version = windows_version::OsVersion::current().build;
-    match () {
-        _ if os_version < 21359 => {
+    match os_version {
+        ..21359 => {
             error!("EcoQoS is not supported on your system, found {os_version} < 21359");
             return Ok(());
         }
-        _ if os_version < 22621 => {
+        21359..22621 => {
             warn!("EcoQoS needs Windows 11 22H2 or newer to be most effective");
         }
-        _ => {
+        22621.. => {
             info!("Congratulations! Your system will make best result");
         }
     }
