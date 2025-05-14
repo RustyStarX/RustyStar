@@ -1,5 +1,6 @@
 use std::error::Error;
 use std::ffi::OsString;
+use std::sync::atomic::Ordering;
 
 use ahash::AHashSet;
 use spdlog::{Level, LevelFilter, debug, error, info, trace, warn};
@@ -10,8 +11,8 @@ use rustystar::config::Config;
 use rustystar::events::enter_event_loop;
 use rustystar::logging::log_error;
 use rustystar::privilege::try_enable_se_debug_privilege;
-use rustystar::utils::{process_child_process, toggle_all};
-use rustystar::{PID_SENDER, WHITELIST};
+use rustystar::utils::{ProcTree, process_child_process, toggle_all};
+use rustystar::{CURRENT_FOREGROUND_PID, PID_SENDER, WHITELIST};
 use windows::Win32::UI::Shell::{
     QUNS_BUSY, QUNS_RUNNING_D3D_FULL_SCREEN, SHQueryUserNotificationState,
 };
@@ -122,6 +123,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     None => {}
                 }
 
+                CURRENT_FOREGROUND_PID.store(pid, Ordering::Release);
                 _ = compio::runtime::spawn_blocking(move || {
                     process_child_process(Some(false), pid)
                 })
@@ -145,6 +147,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 match listen_new_process.mode {
                     rustystar::config::ListenNewProcessMode::Normal => {
                         if whitelisted(proc_name) {
+                            return;
+                        }
+
+                        let current_fg = CURRENT_FOREGROUND_PID.load(Ordering::Acquire);
+                        if current_fg != 0
+                            && ProcTree::new()
+                                .is_ok_and(|proc_tree| proc_tree.is_in_tree(current_fg, process_id))
+                        {
+                            info!("skipping {proc_name:?}: fg process child");
                             return;
                         }
                     }

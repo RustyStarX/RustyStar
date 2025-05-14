@@ -10,6 +10,9 @@ use win32_ecoqos::{
 
 use crate::bypass::whitelisted;
 
+mod proc_tree;
+pub use proc_tree::ProcTree;
+
 pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_result::Result<()> {
     let action = match enable {
         Some(true) => "throtting",
@@ -32,34 +35,7 @@ pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_res
         info!("[{action:^10}] process {main_pid:6}");
     }
 
-    let relations = BTreeMap::from_iter(procs.iter().map(
-        |&Process {
-             process_id,
-             process_parent_id,
-             ..
-         }| (process_id, process_parent_id),
-    ));
-    let in_process_tree = move |mut pid: u32| {
-        // first case: it self is root process
-        if pid == main_pid {
-            return true;
-        }
-
-        let mut met = FxHashSet::default();
-        while let Some(&parent_pid) = relations.get(&pid) {
-            if parent_pid == 0 || met.contains(&parent_pid) {
-                return false;
-            }
-            if parent_pid == main_pid {
-                return true;
-            }
-
-            pid = parent_pid;
-            met.insert(pid);
-        }
-
-        false
-    };
+    let relations = ProcTree::from(procs);
 
     for Process {
         process_id,
@@ -67,7 +43,7 @@ pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_res
         ..
     } in &procs
     {
-        if !in_process_tree(*process_id) {
+        if !relations.is_in_tree(main_pid, *process_id) {
             continue;
         }
         if whitelisted(process_name) {
