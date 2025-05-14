@@ -146,7 +146,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 let proc_name = OsString::from(name);
                 match listen_new_process.mode {
                     rustystar::config::ListenNewProcessMode::Normal => {
-                        if whitelisted(proc_name) {
+                        if whitelisted(&proc_name) {
                             return;
                         }
 

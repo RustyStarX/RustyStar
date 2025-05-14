@@ -1,3 +1,4 @@
+use rustc_hash::FxHashSet;
 use std::collections::BTreeMap;
 
 use win32_ecoqos::{
@@ -5,23 +6,22 @@ use win32_ecoqos::{
     windows_result,
 };
 
+pub trait ProcessInfo {
+    fn pid(&self) -> u32;
+    fn parent_pid(&self) -> u32;
+}
+
 pub struct ProcTree {
     parent_map: BTreeMap<u32, u32>,
 }
 
-impl<I> From<I> for ProcTree
+impl<I, P> From<I> for ProcTree
 where
-    I: IntoIterator<Item = Process>,
+    I: IntoIterator<Item = P>,
+    P: ProcessInfo,
 {
     fn from(iter: I) -> Self {
-        let parent_map = BTreeMap::from_iter(iter.into_iter().map(
-            |&Process {
-                 process_id,
-                 process_parent_id,
-                 ..
-             }| (process_id, process_parent_id),
-        ));
-
+        let parent_map = BTreeMap::from_iter(iter.into_iter().map(|p| (p.pid(), p.parent_pid())));
         Self { parent_map }
     }
 }
@@ -38,11 +38,11 @@ impl ProcTree {
         }
 
         let mut met = FxHashSet::default();
-        while let Some(&parent_pid) = relations.get(&pid) {
+        while let Some(&parent_pid) = self.parent_map.get(&pid) {
             if parent_pid == 0 || met.contains(&parent_pid) {
                 return false;
             }
-            if parent_pid == main_pid {
+            if parent_pid == root {
                 return true;
             }
 
@@ -51,5 +51,28 @@ impl ProcTree {
         }
 
         false
+    }
+}
+
+impl ProcessInfo for Process {
+    fn pid(&self) -> u32 {
+        self.process_id
+    }
+
+    fn parent_pid(&self) -> u32 {
+        self.process_parent_id
+    }
+}
+
+impl<'a, P> ProcessInfo for &'a P
+where
+    P: ProcessInfo,
+{
+    fn pid(&self) -> u32 {
+        P::pid(&self)
+    }
+
+    fn parent_pid(&self) -> u32 {
+        P::parent_pid(&self)
     }
 }

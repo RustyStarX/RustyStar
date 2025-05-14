@@ -1,6 +1,3 @@
-use std::collections::BTreeMap;
-
-use rustc_hash::FxHashSet;
 use spdlog::{debug, info, warn};
 use win32_ecoqos::{
     process::toggle_efficiency_mode,
@@ -35,7 +32,7 @@ pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_res
         info!("[{action:^10}] process {main_pid:6}");
     }
 
-    let relations = ProcTree::from(procs);
+    let relations = ProcTree::from(procs.iter());
 
     for Process {
         process_id,
