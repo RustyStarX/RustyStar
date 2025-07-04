@@ -1,6 +1,8 @@
+use std::os::windows::io::{FromRawHandle, OwnedHandle};
+
 use win32_ecoqos::windows_result;
 use windows::Win32::{
-    Foundation::{CloseHandle, HANDLE, LUID},
+    Foundation::{HANDLE, LUID},
     Security::{
         AdjustTokenPrivileges, GetTokenInformation, LUID_AND_ATTRIBUTES, LookupPrivilegeValueW,
         SE_DEBUG_NAME, SE_PRIVILEGE_ENABLED, TOKEN_ADJUST_PRIVILEGES, TOKEN_ELEVATION,
@@ -57,8 +59,6 @@ fn enable_se_debug(tokenhandle: HANDLE) -> windows_result::Result<()> {
 }
 
 pub fn try_enable_se_debug_privilege() -> windows_result::Result<bool> {
-    let is_admin;
-
     unsafe {
         let processhandle = GetCurrentProcess();
         let mut tokenhandle = HANDLE(std::ptr::null_mut());
@@ -66,14 +66,8 @@ pub fn try_enable_se_debug_privilege() -> windows_result::Result<bool> {
 
         OpenProcessToken(processhandle, desiredaccess, &mut tokenhandle as _)?;
 
-        is_admin = is_elevated(tokenhandle).inspect_err(|_| {
-            _ = CloseHandle(tokenhandle);
-        })?;
-
-        let enable = enable_se_debug(tokenhandle);
-        _ = CloseHandle(tokenhandle);
-        enable?;
+        let _defer = OwnedHandle::from_raw_handle(tokenhandle.0);
+        enable_se_debug(tokenhandle)?;
+        is_elevated(tokenhandle)
     }
-
-    Ok(is_admin)
 }
