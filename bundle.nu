@@ -6,7 +6,9 @@ for $target in [aarch64-pc-windows-msvc x86_64-pc-windows-msvc] {
         cargo wix
             --bin-path "C:/Program Files (x86)/WiX Toolset v3.14/bin"
             --name RustyStar
+            --package rustystar
             --target $target
             --install-version $install_version
+            --nocapture
     )
 }

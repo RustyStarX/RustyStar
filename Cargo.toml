@@ -1,6 +1,7 @@
 [workspace]
 members = ["rustystar", "win32-ecoqos"]
 default-members = ["rustystar"]
+resolver = "3"
 
 [profile.release]
 lto = true

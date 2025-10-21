@@ -71,7 +71,7 @@
       <Directory Id='$(var.PlatformProgramFilesFolder)' Name='PFiles'>
         <Directory Id='APPLICATIONFOLDER' Name='RustyStar'>
           <Component Id='License' Guid='AC37937B-7C0D-4623-BFC6-8D077E46FC14'>
-            <File Id='LicenseFile' DiskId='1' Source='wix\License.rtf' KeyPath='yes'/>
+            <File Id='LicenseFile' DiskId='1' Source='rustystar\wix\License.rtf' KeyPath='yes'/>
           </Component>
 
           <Directory Id='Bin' Name='bin'>
@@ -122,7 +122,7 @@
       <UIRef Id='WixUI_FeatureTree'/>
     </UI>
 
-    <WixVariable Id='WixUILicenseRtf' Value='wix\License.rtf'/>
+    <WixVariable Id='WixUILicenseRtf' Value='rustystar\wix\License.rtf'/>
   </Product>
 
 </Wix>
