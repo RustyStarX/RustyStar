@@ -1,0 +1,48 @@
+[package]
+name = "rustystar"
+version = "0.1.0"
+edition = "2024"
+description = "EcoQoS throtting tool."
+license = "MIT"
+authors = ["mokurin000"]
+documentation = "https://github.com/RustyStarX/RustyStar/wiki"
+
+[dependencies]
+ahash = "0.8.11"
+compio = { version = "0.16.0", default-features = false, features = [
+    "macros",
+    "runtime",
+] }
+ctrlc = "3.4.6"
+directories = "6.0.0"
+kanal = "0.1.1"
+listen-new-proc = { git = "https://github.com/RustyStarX/fitgirl-ecoqos", version = "0.1.0" }
+rustc-hash = "2.1.1"
+serde = { version = "1.0.219", features = ["derive"] }
+spdlog-rs = "0.5.1"
+toml = "0.9.5"
+win32-ecoqos = "0.6.0"
+windows = { version = "0.62.2", features = [
+    # UI event hook
+    "Win32_UI_Accessibility",
+    # foreground event id, enter event loop
+    "Win32_UI_WindowsAndMessaging",
+    # enable SeDebugPrivilege for SYSTEM processes
+    "Win32_System_Threading",
+    "Win32_Security",
+    # SHQueryUserNotificationStat
+    "Win32_UI_Shell",
+] }
+windows-version = "0.1.4"
+
+[build-dependencies]
+windows_exe_info = "0.5.2"
+
+[[bin]]
+name = "RustyStar"
+path = "./src/main.rs"
+
+
+[package.metadata.bundle]
+identifier = "io.github.RustyStarX.RustyStar"
+resources = []

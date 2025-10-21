@@ -1,0 +1,47 @@
+[package]
+name = "win32-ecoqos"
+version = "0.6.0"
+edition = "2021"
+authors = ["mokurin000"]
+description = "EcoQoS throttle for Windows 21H2 or newer"
+repository = "https://github.com/RustyStarX/RustyStar"
+license = "MIT"
+keywords = ["Windows", "EcoQoS"]
+categories = ["api-bindings", "os::windows-apis"]
+
+[features]
+default = ["find_thread", "find_process"]
+find_thread = ["windows/Win32_System_Diagnostics_ToolHelp"]
+find_process = ["windows/Win32_System_Diagnostics_ToolHelp"]
+
+nightly = []
+
+[dependencies]
+windows = { version = "0.62.2", features = [
+    "Win32_System_Threading",
+], default-features = false }
+windows-result = "0.4.1"
+
+[dev-dependencies]
+oneshot = "0.1.11"
+
+[package.metadata.docs.rs]
+targets = [
+    "x86_64-pc-windows-msvc",
+    "i686-pc-windows-msvc",
+    "aarch64-pc-windows-msvc",
+]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[[test]]
+name = "find_thread"
+required-features = ["find_thread"]
+
+[[test]]
+name = "list_process"
+required-features = ["find_process"]
+
+[[example]]
+name = "list_process"
+required-features = ["find_process"]
