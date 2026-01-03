@@ -1,7 +1,11 @@
 [workspace]
-members = ["rustystar", "win32-ecoqos"]
+members = ["rustystar", "win32-ecoqos", "listen-new-proc"]
 default-members = ["rustystar"]
 resolver = "3"
+
+[workspace.dependencies]
+win32-ecoqos = { path = "./win32-ecoqos" }
+listen-new-proc = { path = "./listen-new-proc" }
 
 [profile.release]
 lto = true

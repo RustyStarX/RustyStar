@@ -8,8 +8,11 @@ authors = ["mokurin000"]
 documentation = "https://github.com/RustyStarX/RustyStar/wiki"
 
 [dependencies]
+win32-ecoqos = { workspace = true }
+listen-new-proc = { workspace = true }
+
 ahash = "0.8.11"
-auto-launch = "0.5.0"
+auto-launch = { git = "https://github.com/RustyStarX/auto-launch", branch = "chore/bump-deps" }
 compio = { version = "0.17.0", default-features = false, features = [
     "macros",
     "runtime",
@@ -17,12 +20,10 @@ compio = { version = "0.17.0", default-features = false, features = [
 ctrlc = "3.4.6"
 directories = "6.0.0"
 kanal = "0.1.1"
-listen-new-proc = { git = "https://github.com/RustyStarX/fitgirl-ecoqos", version = "0.1.0" }
 rustc-hash = "2.1.1"
 serde = { version = "1.0.219", features = ["derive"] }
 spdlog-rs = "0.5.1"
 toml = "0.9.5"
-win32-ecoqos = "0.6.0"
 windows = { version = "0.62.2", features = [
     # UI event hook
     "Win32_UI_Accessibility",
