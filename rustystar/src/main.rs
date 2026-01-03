@@ -1,3 +1,4 @@
+use std::env::current_exe;
 use std::error::Error;
 use std::ffi::OsString;
 use std::path::PathBuf;
@@ -66,12 +67,39 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .expect("failed to load configuration!");
     info!("loaded configuration: {config:#?}");
     let Config {
+        autostart_on_boot,
         listen_new_process,
         listen_foreground_events,
         throttle_all_startup,
         system_process,
         whitelist,
     } = config;
+
+    info!("configuring autostart...");
+    let auto_launch = auto_launch::AutoLaunchBuilder::new()
+        .set_app_name(env!("CARGO_PKG_NAME"))
+        .set_app_path(&current_exe()?.to_string_lossy())
+        .build()?;
+    if auto_launch.is_enabled()? != autostart_on_boot {
+        let re = if autostart_on_boot {
+            auto_launch.enable()
+        } else {
+            auto_launch.disable()
+        };
+
+        if let Err(e) = re {
+            error!("failed to setup auto-start: {e}");
+        } else {
+            info!(
+                "auto-start {} successfully",
+                if autostart_on_boot {
+                    "enabled"
+                } else {
+                    "disabled"
+                }
+            );
+        }
+    }
 
     info!("initializing whitelist...");
     let _ = WHITELIST.set(AHashSet::from_iter(

@@ -36,6 +36,7 @@ pub static PROJECT_DIR: LazyLock<Option<ProjectDirs>> =
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Config {
+    pub autostart_on_boot: bool,
     pub listen_new_process: ListenNewProcess,
     pub listen_foreground_events: ListenForegroundEvents,
     pub throttle_all_startup: bool,
@@ -75,6 +76,7 @@ impl Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
+            autostart_on_boot: false,
             listen_new_process: ListenNewProcess::default(),
             listen_foreground_events: ListenForegroundEvents::default(),
             throttle_all_startup: true,
