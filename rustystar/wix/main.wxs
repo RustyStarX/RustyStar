@@ -113,7 +113,7 @@
     <SetProperty Id='ARPINSTALLLOCATION' Value='[APPLICATIONFOLDER]' After='CostFinalize'/>
 
     <!-- Installer icon -->
-    <Icon Id="icon.ico" SourceFile="res\rustystar.ico"/>
+    <Icon Id="icon.ico" SourceFile="rustystar\res\rustystar.ico"/>
     <Property Id="ARPPRODUCTICON" Value="icon.ico" />
 
     <Property Id='ARPHELPLINK' Value='https://github.com/RustyStarX/RustyStar/wiki'/>
