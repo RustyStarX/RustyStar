@@ -34,12 +34,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .map(|proj| proj.data_dir().to_path_buf())
             .unwrap_or_else(|| PathBuf::from("."));
         _ = std::fs::create_dir_all(&log_path);
+
+        let file_level = LevelFilter::MoreSevereEqual(Level::Warn);
         logger.sinks_mut().push(Arc::new(
             FileSink::builder()
-                .level_filter(LevelFilter::MoreSevereEqual(Level::Warn))
+                .level_filter(file_level)
                 .path(log_path.join("rustystar.log"))
                 .build()?,
         ));
+        logger.set_flush_level_filter(file_level);
         Ok(())
     })?;
     spdlog::set_default_logger(logger);
@@ -172,7 +175,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             && ProcTree::new()
                                 .is_ok_and(|proc_tree| proc_tree.is_in_tree(current_fg, process_id))
                         {
-                            info!("skipping {proc_name:?}: fg process child");
+                            debug!("skipping {proc_name:?}: fg process child");
                             return;
                         }
                     }
