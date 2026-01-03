@@ -33,10 +33,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .as_ref()
             .map(|proj| proj.data_dir().to_path_buf())
             .unwrap_or_else(|| PathBuf::from("."));
+        _ = std::fs::create_dir_all(&log_path);
         logger.sinks_mut().push(Arc::new(
             FileSink::builder()
                 .level_filter(LevelFilter::MoreSevereEqual(Level::Warn))
-                .path(log_path)
+                .path(log_path.join("rustystar.log"))
                 .build()?,
         ));
         Ok(())
