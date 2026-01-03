@@ -1,13 +1,16 @@
 use std::error::Error;
 use std::ffi::OsString;
+use std::path::PathBuf;
+use std::sync::Arc;
 use std::sync::atomic::Ordering;
 
 use ahash::AHashSet;
+use spdlog::sink::FileSink;
 use spdlog::{Level, LevelFilter, debug, error, info, trace, warn};
 use win32_ecoqos::process::toggle_efficiency_mode;
 
 use rustystar::bypass::whitelisted;
-use rustystar::config::Config;
+use rustystar::config::{Config, PROJECT_DIR};
 use rustystar::events::enter_event_loop;
 use rustystar::logging::log_error;
 use rustystar::privilege::try_enable_se_debug_privilege;
@@ -19,13 +22,26 @@ use windows::Win32::UI::Shell::{
 
 #[compio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    spdlog::default_logger().set_level_filter(LevelFilter::MoreSevereEqual(
-        if cfg!(debug_assertions) {
+    let logger = spdlog::default_logger().fork_with(|logger| {
+        logger.set_level_filter(LevelFilter::MoreSevereEqual(if cfg!(debug_assertions) {
             Level::Debug
         } else {
             Level::Info
-        },
-    ));
+        }));
+
+        let log_path = PROJECT_DIR
+            .as_ref()
+            .map(|proj| proj.data_dir().to_path_buf())
+            .unwrap_or_else(|| PathBuf::from("."));
+        logger.sinks_mut().push(Arc::new(
+            FileSink::builder()
+                .level_filter(LevelFilter::MoreSevereEqual(Level::Warn))
+                .path(log_path)
+                .build()?,
+        ));
+        Ok(())
+    })?;
+    spdlog::set_default_logger(logger);
 
     let os_version = windows_version::OsVersion::current().build;
     match os_version {

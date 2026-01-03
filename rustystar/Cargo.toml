@@ -9,7 +9,7 @@ documentation = "https://github.com/RustyStarX/RustyStar/wiki"
 
 [dependencies]
 ahash = "0.8.11"
-compio = { version = "0.16.0", default-features = false, features = [
+compio = { version = "0.17.0", default-features = false, features = [
     "macros",
     "runtime",
 ] }

@@ -1,9 +1,10 @@
-use std::{error::Error, path::PathBuf};
+use std::{error::Error, path::PathBuf, sync::LazyLock};
 
 use compio::{
     fs::{self, File},
     io::AsyncReadAtExt,
 };
+use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 use spdlog::warn;
 
@@ -29,6 +30,9 @@ pub struct ListenNewProcess {
     pub blacklist: Vec<String>,
 }
 
+pub static PROJECT_DIR: LazyLock<Option<ProjectDirs>> =
+    LazyLock::new(|| directories::ProjectDirs::from("io", "RustyStarX", "RustyStar"));
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Config {
@@ -41,7 +45,8 @@ pub struct Config {
 
 impl Config {
     pub async fn from_profile() -> Result<Self, Box<dyn Error + Send + Sync>> {
-        let config_dir = directories::ProjectDirs::from("io", "RustyStarX", "RustyStar")
+        let config_dir = PROJECT_DIR
+            .as_ref()
             .map(|d| d.config_dir().to_path_buf())
             .unwrap_or(PathBuf::from("."));
         fs::create_dir_all(&config_dir).await?;
