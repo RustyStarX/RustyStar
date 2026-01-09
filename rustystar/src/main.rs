@@ -19,6 +19,7 @@ use rustystar::logging::log_error;
 use rustystar::privilege::try_enable_se_debug_privilege;
 use rustystar::utils::{ProcTree, process_child_process, toggle_all};
 use rustystar::{CURRENT_FOREGROUND_PID, PID_SENDER, WHITELIST};
+use windows::Win32::Foundation::{ERROR_ALREADY_EXISTS, GetLastError};
 use windows::Win32::System::Threading::CreateMutexW;
 use windows::Win32::UI::Shell::{
     QUNS_BUSY, QUNS_RUNNING_D3D_FULL_SCREEN, SHQueryUserNotificationState,
@@ -27,7 +28,15 @@ use windows::core::w;
 
 #[compio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let _singleton = unsafe { CreateMutexW(None, true, w!("RustyStar"))? };
+    unsafe {
+        CreateMutexW(None, true, w!("RustyStar"))?;
+        // According to MSDN, the `CreateMutexW` will not fail, but you have
+        // to call `GetLastError` for checking instance
+        if GetLastError() == ERROR_ALREADY_EXISTS {
+            info!("found existing instance, exiting silently...");
+            return Ok(());
+        }
+    };
 
     let log_path = PROJECT_DIR
         .as_ref()
