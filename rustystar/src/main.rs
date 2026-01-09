@@ -19,12 +19,16 @@ use rustystar::logging::log_error;
 use rustystar::privilege::try_enable_se_debug_privilege;
 use rustystar::utils::{ProcTree, process_child_process, toggle_all};
 use rustystar::{CURRENT_FOREGROUND_PID, PID_SENDER, WHITELIST};
+use windows::Win32::System::Threading::CreateMutexW;
 use windows::Win32::UI::Shell::{
     QUNS_BUSY, QUNS_RUNNING_D3D_FULL_SCREEN, SHQueryUserNotificationState,
 };
+use windows::core::w;
 
 #[compio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    let _singleton = unsafe { CreateMutexW(None, true, w!("RustyStar"))? };
+
     let log_path = PROJECT_DIR
         .as_ref()
         .map(|proj| proj.data_dir().to_path_buf())
@@ -130,7 +134,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             use windows::{
                 Win32::UI::{Shell::ShellExecuteW, WindowsAndMessaging::SW_SHOWNORMAL},
-                core::{PCWSTR, w},
+                core::PCWSTR,
             };
 
             let lpfile = log_file
