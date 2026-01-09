@@ -26,18 +26,21 @@ use windows::Win32::UI::Shell::{
 };
 use windows::core::w;
 
-#[compio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+fn singleton_check() -> Result<bool, Box<dyn Error>> {
     unsafe {
         CreateMutexW(None, true, w!("RustyStar"))?;
         // According to MSDN, the `CreateMutexW` will not fail, but you have
         // to call `GetLastError` for checking instance
         if GetLastError() == ERROR_ALREADY_EXISTS {
             info!("found existing instance, exiting silently...");
-            return Ok(());
+            return Ok(false);
         }
     };
+    Ok(true)
+}
 
+#[compio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
     let log_path = PROJECT_DIR
         .as_ref()
         .map(|proj| proj.data_dir().to_path_buf())
@@ -64,6 +67,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         Ok(())
     })?;
     spdlog::set_default_logger(logger);
+
+    if let Ok(false) = singleton_check() {
+        return Ok(());
+    }
 
     let os_version = windows_version::OsVersion::current().build;
     match os_version {
