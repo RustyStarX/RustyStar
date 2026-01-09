@@ -1,9 +1,7 @@
 use spdlog::{debug, warn};
-use win32_ecoqos::{
-    process::toggle_efficiency_mode,
-    utils::{Process, Processes},
-    windows_result,
-};
+use win32_ecoqos::process::toggle_efficiency_mode;
+use win32_ecoqos::utils::{Process, Processes};
+use win32_ecoqos::windows_result;
 
 use crate::bypass::whitelisted;
 

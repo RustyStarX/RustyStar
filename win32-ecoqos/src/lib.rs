@@ -1,8 +1,7 @@
 #![doc = include_str!("../README.md")]
 #![cfg_attr(feature = "nightly", feature(doc_cfg))]
 
-pub use windows;
-pub use windows_result;
+pub use {windows, windows_result};
 
 pub(crate) mod preset;
 

@@ -1,9 +1,9 @@
-use std::{error::Error, path::PathBuf, sync::LazyLock};
+use std::error::Error;
+use std::path::PathBuf;
+use std::sync::LazyLock;
 
-use compio::{
-    fs::{self, File},
-    io::AsyncReadAtExt,
-};
+use compio::fs::{self, File};
+use compio::io::AsyncReadAtExt;
 use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 use spdlog::warn;

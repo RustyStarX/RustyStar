@@ -1,10 +1,8 @@
 #![feature(test)]
 
 use win32_ecoqos::process::{toggle_efficiency_mode, toggle_efficiency_mode_handle};
-use windows::Win32::{
-    Foundation::CloseHandle,
-    System::Threading::{GetCurrentProcess, GetCurrentThreadId},
-};
+use windows::Win32::Foundation::CloseHandle;
+use windows::Win32::System::Threading::{GetCurrentProcess, GetCurrentThreadId};
 
 extern crate test;
 

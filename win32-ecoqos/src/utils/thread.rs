@@ -1,16 +1,12 @@
-use std::{
-    ffi::{OsStr, OsString},
-    os::windows::ffi::OsStringExt,
-};
+use std::ffi::{OsStr, OsString};
+use std::os::windows::ffi::OsStringExt;
 
-use windows::Win32::{
-    Foundation::{CloseHandle, HANDLE},
-    System::{
-        Diagnostics::ToolHelp::{
-            CreateToolhelp32Snapshot, Thread32First, Thread32Next, TH32CS_SNAPTHREAD, THREADENTRY32,
-        },
-        Threading::{GetThreadDescription, OpenThread, THREAD_QUERY_LIMITED_INFORMATION},
-    },
+use windows::Win32::Foundation::{CloseHandle, HANDLE};
+use windows::Win32::System::Diagnostics::ToolHelp::{
+    CreateToolhelp32Snapshot, Thread32First, Thread32Next, TH32CS_SNAPTHREAD, THREADENTRY32,
+};
+use windows::Win32::System::Threading::{
+    GetThreadDescription, OpenThread, THREAD_QUERY_LIMITED_INFORMATION,
 };
 
 #[derive(Debug, PartialEq, Eq)]

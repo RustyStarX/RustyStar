@@ -1,10 +1,8 @@
 use rustc_hash::FxHashSet;
 use std::collections::BTreeMap;
 
-use win32_ecoqos::{
-    utils::{Process, Processes},
-    windows_result,
-};
+use win32_ecoqos::utils::{Process, Processes};
+use win32_ecoqos::windows_result;
 
 pub trait ProcessInfo {
     fn pid(&self) -> u32;

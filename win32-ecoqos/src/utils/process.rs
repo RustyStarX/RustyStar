@@ -1,11 +1,9 @@
-use std::{ffi::OsString, os::windows::ffi::OsStringExt};
+use std::ffi::OsString;
+use std::os::windows::ffi::OsStringExt;
 
-use windows::Win32::{
-    Foundation::{CloseHandle, HANDLE},
-    System::Diagnostics::ToolHelp::{
-        CreateToolhelp32Snapshot, Process32FirstW, Process32NextW, PROCESSENTRY32W,
-        TH32CS_SNAPPROCESS,
-    },
+use windows::Win32::Foundation::{CloseHandle, HANDLE};
+use windows::Win32::System::Diagnostics::ToolHelp::{
+    CreateToolhelp32Snapshot, Process32FirstW, Process32NextW, PROCESSENTRY32W, TH32CS_SNAPPROCESS,
 };
 
 #[derive(Debug, PartialEq, Eq)]

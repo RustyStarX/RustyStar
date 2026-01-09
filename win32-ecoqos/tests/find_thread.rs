@@ -1,4 +1,7 @@
-use std::{ffi::OsString, sync::mpsc::channel, thread::sleep, time::Duration};
+use std::ffi::OsString;
+use std::sync::mpsc::channel;
+use std::thread::sleep;
+use std::time::Duration;
 
 use win32_ecoqos::utils::{Thread, Threads};
 use windows::Win32::System::Threading::GetCurrentThreadId;

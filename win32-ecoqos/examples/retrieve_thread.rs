@@ -1,11 +1,12 @@
-use std::{error::Error, sync::mpsc::channel, thread::sleep, time::Duration};
+use std::error::Error;
+use std::sync::mpsc::channel;
+use std::thread::sleep;
+use std::time::Duration;
 
 use win32_ecoqos::thread::{ecoqos_enabled, toggle_efficiency_mode_handle};
-use windows::Win32::{
-    Foundation::CloseHandle,
-    System::Threading::{
-        GetCurrentThreadId, OpenThread, THREAD_QUERY_INFORMATION, THREAD_SET_INFORMATION,
-    },
+use windows::Win32::Foundation::CloseHandle;
+use windows::Win32::System::Threading::{
+    GetCurrentThreadId, OpenThread, THREAD_QUERY_INFORMATION, THREAD_SET_INFORMATION,
 };
 
 fn main() -> Result<(), Box<dyn Error + Send + Sync>> {

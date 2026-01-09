@@ -138,16 +138,15 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     #[cfg(feature = "hide-to-tray")]
     {
-        use std::{iter::once, os::windows::ffi::OsStrExt as _};
+        use std::iter::once;
+        use std::os::windows::ffi::OsStrExt as _;
 
         use tray_item::{IconSource, TrayItem};
-        use windows::{
-            Win32::UI::{
-                Shell::{SHELLEXECUTEINFOW, ShellExecuteExW},
-                WindowsAndMessaging::SW_SHOWNORMAL,
-            },
-            core::PCWSTR,
+        use windows::Win32::UI::Shell::{
+            SEE_MASK_INVOKEIDLIST, SHELLEXECUTEINFOW, ShellExecuteExW,
         };
+        use windows::Win32::UI::WindowsAndMessaging::SW_SHOWNORMAL;
+        use windows::core::PCWSTR;
 
         fn encode_path(path: &PathBuf) -> Vec<u16> {
             path.as_os_str()
@@ -166,9 +165,11 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             let lpfile = encode_path(&config_file);
             let mut execute_info = SHELLEXECUTEINFOW {
                 cbSize: size_of::<SHELLEXECUTEINFOW>() as _,
+                fMask: SEE_MASK_INVOKEIDLIST,
                 lpVerb: w!("openas"),
-                lpFile: PCWSTR(lpfile.as_ptr()),
+                lpParameters: PCWSTR(std::ptr::null()),
                 nShow: SW_SHOWNORMAL.0,
+                lpFile: PCWSTR(lpfile.as_ptr()),
                 ..Default::default()
             };
             _ = ShellExecuteExW((&mut execute_info) as *mut _);
@@ -177,9 +178,11 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             let lpfile = encode_path(&log_file);
             let mut execute_info = SHELLEXECUTEINFOW {
                 cbSize: size_of::<SHELLEXECUTEINFOW>() as _,
+                fMask: SEE_MASK_INVOKEIDLIST,
                 lpVerb: w!("openas"),
-                lpFile: PCWSTR(lpfile.as_ptr()),
+                lpParameters: PCWSTR(std::ptr::null()),
                 nShow: SW_SHOWNORMAL.0,
+                lpFile: PCWSTR(lpfile.as_ptr()),
                 ..Default::default()
             };
             _ = ShellExecuteExW((&mut execute_info) as *mut _);

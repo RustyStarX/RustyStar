@@ -1,14 +1,12 @@
 use std::ffi::c_void;
 
 use crate::preset::{THREAD_RESTORE, THREAD_THROTTLE, THREAD_UNTHROTTLE};
-use windows::Win32::{
-    Foundation::{CloseHandle, HANDLE},
-    System::Threading::{
-        GetThreadInformation, OpenThread, SetThreadInformation, SetThreadPriority,
-        ThreadPowerThrottling, THREAD_INFORMATION_CLASS, THREAD_POWER_THROTTLING_CURRENT_VERSION,
-        THREAD_POWER_THROTTLING_EXECUTION_SPEED, THREAD_POWER_THROTTLING_STATE, THREAD_PRIORITY,
-        THREAD_PRIORITY_IDLE, THREAD_PRIORITY_NORMAL, THREAD_SET_INFORMATION,
-    },
+use windows::Win32::Foundation::{CloseHandle, HANDLE};
+use windows::Win32::System::Threading::{
+    GetThreadInformation, OpenThread, SetThreadInformation, SetThreadPriority,
+    ThreadPowerThrottling, THREAD_INFORMATION_CLASS, THREAD_POWER_THROTTLING_CURRENT_VERSION,
+    THREAD_POWER_THROTTLING_EXECUTION_SPEED, THREAD_POWER_THROTTLING_STATE, THREAD_PRIORITY,
+    THREAD_PRIORITY_IDLE, THREAD_PRIORITY_NORMAL, THREAD_SET_INFORMATION,
 };
 
 unsafe fn toggle_efficiency_mode_impl(

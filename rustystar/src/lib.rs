@@ -1,7 +1,6 @@
-use std::{
-    ffi::OsString,
-    sync::{OnceLock, atomic::AtomicU32},
-};
+use std::ffi::OsString;
+use std::sync::OnceLock;
+use std::sync::atomic::AtomicU32;
 
 use ahash::AHashSet;
 use kanal::Sender;

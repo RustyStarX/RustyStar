@@ -1,4 +1,5 @@
-use std::{collections::HashMap, time::Duration};
+use std::collections::HashMap;
+use std::time::Duration;
 
 use futures_lite::StreamExt;
 use serde::Deserialize;

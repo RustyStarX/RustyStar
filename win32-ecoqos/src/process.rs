@@ -1,15 +1,13 @@
 use std::ffi::c_void;
 
 use crate::preset::{PROCESS_RESTORE, PROCESS_THROTTLE, PROCESS_UNTHROTTLE};
-use windows::Win32::{
-    Foundation::{CloseHandle, HANDLE},
-    System::Threading::{
-        GetProcessInformation, OpenProcess, ProcessPowerThrottling, SetPriorityClass,
-        SetProcessInformation, IDLE_PRIORITY_CLASS, NORMAL_PRIORITY_CLASS, PROCESS_CREATION_FLAGS,
-        PROCESS_INFORMATION_CLASS, PROCESS_POWER_THROTTLING_CURRENT_VERSION,
-        PROCESS_POWER_THROTTLING_EXECUTION_SPEED, PROCESS_POWER_THROTTLING_STATE,
-        PROCESS_SET_INFORMATION,
-    },
+use windows::Win32::Foundation::{CloseHandle, HANDLE};
+use windows::Win32::System::Threading::{
+    GetProcessInformation, OpenProcess, ProcessPowerThrottling, SetPriorityClass,
+    SetProcessInformation, IDLE_PRIORITY_CLASS, NORMAL_PRIORITY_CLASS, PROCESS_CREATION_FLAGS,
+    PROCESS_INFORMATION_CLASS, PROCESS_POWER_THROTTLING_CURRENT_VERSION,
+    PROCESS_POWER_THROTTLING_EXECUTION_SPEED, PROCESS_POWER_THROTTLING_STATE,
+    PROCESS_SET_INFORMATION,
 };
 
 unsafe fn toggle_efficiency_mode_impl(

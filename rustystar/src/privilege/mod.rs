@@ -1,15 +1,13 @@
 use std::os::windows::io::{FromRawHandle, OwnedHandle};
 
 use win32_ecoqos::windows_result;
-use windows::Win32::{
-    Foundation::{HANDLE, LUID},
-    Security::{
-        AdjustTokenPrivileges, GetTokenInformation, LUID_AND_ATTRIBUTES, LookupPrivilegeValueW,
-        SE_DEBUG_NAME, SE_PRIVILEGE_ENABLED, TOKEN_ADJUST_PRIVILEGES, TOKEN_ELEVATION,
-        TOKEN_PRIVILEGES, TOKEN_QUERY, TokenElevation,
-    },
-    System::Threading::{GetCurrentProcess, OpenProcessToken},
+use windows::Win32::Foundation::{HANDLE, LUID};
+use windows::Win32::Security::{
+    AdjustTokenPrivileges, GetTokenInformation, LUID_AND_ATTRIBUTES, LookupPrivilegeValueW,
+    SE_DEBUG_NAME, SE_PRIVILEGE_ENABLED, TOKEN_ADJUST_PRIVILEGES, TOKEN_ELEVATION,
+    TOKEN_PRIVILEGES, TOKEN_QUERY, TokenElevation,
 };
+use windows::Win32::System::Threading::{GetCurrentProcess, OpenProcessToken};
 
 fn is_elevated(tokenhandle: HANDLE) -> windows_result::Result<bool> {
     let mut tokeninformation = TOKEN_ELEVATION::default();
