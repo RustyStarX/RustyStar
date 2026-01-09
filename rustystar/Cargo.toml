@@ -7,6 +7,9 @@ license = "MIT"
 authors = ["mokurin000"]
 documentation = "https://github.com/RustyStarX/RustyStar/wiki"
 
+[features]
+hide-to-tray = ["dep:tray-item"]
+
 [dependencies]
 win32-ecoqos = { workspace = true }
 listen-new-proc = { workspace = true }
@@ -36,6 +39,7 @@ windows = { version = "0.62.2", features = [
     "Win32_UI_Shell",
 ] }
 windows-version = "0.1.4"
+tray-item = { git = "https://github.com/RustyStarX/tray-item-rs", branch = "chore/bump-deps", optional = true }
 
 [build-dependencies]
 windows_exe_info = "0.5.2"

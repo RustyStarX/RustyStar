@@ -3,6 +3,13 @@ let install_version = "0.1." + $rev_count;
 
 for $target in [aarch64-pc-windows-msvc x86_64-pc-windows-msvc] {
     (
+        cargo build
+            --release
+            --locked
+            --target $target
+            --features hide-to-tray
+    )
+    (
         cargo wix
             --bin-path "C:/Program Files (x86)/WiX Toolset v3.14/bin"
             --name RustyStar
@@ -10,5 +17,6 @@ for $target in [aarch64-pc-windows-msvc x86_64-pc-windows-msvc] {
             --target $target
             --install-version $install_version
             --nocapture
+            --no-build
     )
 }

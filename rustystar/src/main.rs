@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "hide-to-tray", windows_subsystem = "windows")]
+
 use std::env::current_exe;
 use std::error::Error;
 use std::ffi::OsString;
@@ -23,6 +25,12 @@ use windows::Win32::UI::Shell::{
 
 #[compio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    let log_path = PROJECT_DIR
+        .as_ref()
+        .map(|proj| proj.data_dir().to_path_buf())
+        .unwrap_or_else(|| PathBuf::from("."));
+    let log_file = log_path.join("rustystar.log");
+
     let logger = spdlog::default_logger().fork_with(|logger| {
         logger.set_level_filter(LevelFilter::MoreSevereEqual(if cfg!(debug_assertions) {
             Level::Debug
@@ -30,17 +38,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
             Level::Info
         }));
 
-        let log_path = PROJECT_DIR
-            .as_ref()
-            .map(|proj| proj.data_dir().to_path_buf())
-            .unwrap_or_else(|| PathBuf::from("."));
         _ = std::fs::create_dir_all(&log_path);
 
         let file_level = LevelFilter::MoreSevereEqual(Level::Info);
         logger.sinks_mut().push(Arc::new(
             FileSink::builder()
                 .level_filter(file_level)
-                .path(log_path.join("rustystar.log"))
+                .path(&log_file)
                 .build()?,
         ));
         logger.set_flush_level_filter(file_level);
@@ -111,6 +115,46 @@ async fn main() -> Result<(), Box<dyn Error>> {
         _ = toggle_all(None);
         std::process::exit(0);
     })?;
+
+    #[cfg(feature = "hide-to-tray")]
+    {
+        use tray_item::{IconSource, TrayItem};
+
+        let icon = IconSource::Resource("icon0");
+        let mut tray = TrayItem::new("RustyStar", icon).inspect_err(|e| {
+            error!("failed to spawn tray icon: {e}");
+        })?;
+
+        tray.add_menu_item("Open log", move || unsafe {
+            use std::{iter::once, os::windows::ffi::OsStrExt as _};
+
+            use windows::{
+                Win32::UI::{Shell::ShellExecuteW, WindowsAndMessaging::SW_SHOWNORMAL},
+                core::{PCWSTR, w},
+            };
+
+            let lpfile = log_file
+                .as_os_str()
+                .encode_wide()
+                .chain(once(0))
+                .collect::<Vec<u16>>();
+            ShellExecuteW(
+                None,
+                w!("open"),
+                PCWSTR(lpfile.as_ptr()),
+                None,
+                None,
+                SW_SHOWNORMAL,
+            );
+        })?;
+        tray.add_menu_item("Quit", || {
+            info!("received quit signal, recovering...");
+            _ = toggle_all(None);
+            std::process::exit(0);
+        })?;
+
+        std::mem::forget(tray);
+    }
 
     if system_process {
         match try_enable_se_debug_privilege() {
