@@ -163,7 +163,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             let lpfile = encode_path(&config_file);
             ShellExecuteW(
                 None,
-                w!("open"),
+                w!("openas"),
                 PCWSTR(lpfile.as_ptr()),
                 None,
                 None,
@@ -174,7 +174,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
             let lpfile = encode_path(&log_file);
             ShellExecuteW(
                 None,
-                w!("open"),
+                w!("openas"),
                 PCWSTR(lpfile.as_ptr()),
                 None,
                 None,
