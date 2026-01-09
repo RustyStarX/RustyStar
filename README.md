@@ -30,6 +30,16 @@ disable `listen_foreground_events` and switch mode of `listen_new_process` to `"
 
 Check [wiki page of configuration](https://github.com/RustyStarX/RustyStar/wiki/Configuration) for more details.
 
+## Installation
+
+[Github Release](https://github.com/RustyStarX/RustyStar/releases/latest)
+
+If you want a console application without tray icon and automatic auto launch with system,
+
+download the `*-pc-windows-msvc.tar.gz` depends on your CPU arch.
+
+Otherwise, download the `RustyStar-0.1.*-*.msi`, which hides program window and only write to logs.
+
 ## Roadmap
 
 - [x] Multi Window support
