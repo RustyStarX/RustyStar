@@ -45,15 +45,18 @@ pub struct Config {
 }
 
 impl Config {
-    pub async fn from_profile() -> Result<Self, Box<dyn Error + Send + Sync>> {
+    pub async fn config_path() -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
         let config_dir = PROJECT_DIR
             .as_ref()
             .map(|d| d.config_dir().to_path_buf())
             .unwrap_or(PathBuf::from("."));
         fs::create_dir_all(&config_dir).await?;
 
-        let config_path = config_dir.join("config.toml");
+        Ok(config_dir.join("config.toml"))
+    }
 
+    pub async fn from_profile() -> Result<Self, Box<dyn Error + Send + Sync>> {
+        let config_path = Self::config_path().await?;
         if config_path.exists() {
             let file = File::open(&config_path).await?;
             let result = file.read_to_end_at(Vec::with_capacity(4096), 0).await;

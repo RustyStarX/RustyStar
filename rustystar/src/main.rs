@@ -26,7 +26,7 @@ use windows::Win32::UI::Shell::{
 };
 use windows::core::w;
 
-fn singleton_check() -> Result<bool, Box<dyn Error>> {
+fn singleton_check() -> Result<bool, Box<dyn Error + Send + Sync>> {
     unsafe {
         CreateMutexW(None, true, w!("RustyStar"))?;
         // According to MSDN, the `CreateMutexW` will not fail, but you have
@@ -40,7 +40,7 @@ fn singleton_check() -> Result<bool, Box<dyn Error>> {
 }
 
 #[compio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let log_path = PROJECT_DIR
         .as_ref()
         .map(|proj| proj.data_dir().to_path_buf())
@@ -138,26 +138,40 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     #[cfg(feature = "hide-to-tray")]
     {
+        use std::{iter::once, os::windows::ffi::OsStrExt as _};
+
         use tray_item::{IconSource, TrayItem};
+        use windows::{
+            Win32::UI::{Shell::ShellExecuteW, WindowsAndMessaging::SW_SHOWNORMAL},
+            core::PCWSTR,
+        };
+
+        fn encode_path(path: &PathBuf) -> Vec<u16> {
+            path.as_os_str()
+                .encode_wide()
+                .chain(once(0))
+                .collect::<Vec<u16>>()
+        }
 
         let icon = IconSource::Resource("icon0");
         let mut tray = TrayItem::new("RustyStar", icon).inspect_err(|e| {
             error!("failed to spawn tray icon: {e}");
         })?;
 
+        let config_file = Config::config_path().await?;
+        tray.add_menu_item("Open config", move || unsafe {
+            let lpfile = encode_path(&config_file);
+            ShellExecuteW(
+                None,
+                w!("open"),
+                PCWSTR(lpfile.as_ptr()),
+                None,
+                None,
+                SW_SHOWNORMAL,
+            );
+        })?;
         tray.add_menu_item("Open log", move || unsafe {
-            use std::{iter::once, os::windows::ffi::OsStrExt as _};
-
-            use windows::{
-                Win32::UI::{Shell::ShellExecuteW, WindowsAndMessaging::SW_SHOWNORMAL},
-                core::PCWSTR,
-            };
-
-            let lpfile = log_file
-                .as_os_str()
-                .encode_wide()
-                .chain(once(0))
-                .collect::<Vec<u16>>();
+            let lpfile = encode_path(&log_file);
             ShellExecuteW(
                 None,
                 w!("open"),
