@@ -1,4 +1,4 @@
-use spdlog::{debug, info, warn};
+use spdlog::{debug, warn};
 use win32_ecoqos::{
     process::toggle_efficiency_mode,
     utils::{Process, Processes},
@@ -27,9 +27,9 @@ pub fn process_child_process(enable: Option<bool>, main_pid: u32) -> windows_res
             return Ok(());
         }
 
-        info!("[{action:^10}] process {main_pid:6}: {process_name:?}");
+        debug!("[{action:^10}] process {main_pid:6}: {process_name:?}");
     } else {
-        info!("[{action:^10}] process {main_pid:6}");
+        debug!("[{action:^10}] process {main_pid:6}");
     }
 
     let relations = ProcTree::from(procs.iter());

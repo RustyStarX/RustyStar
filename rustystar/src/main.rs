@@ -36,7 +36,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .unwrap_or_else(|| PathBuf::from("."));
         _ = std::fs::create_dir_all(&log_path);
 
-        let file_level = LevelFilter::MoreSevereEqual(Level::Warn);
+        let file_level = LevelFilter::MoreSevereEqual(Level::Info);
         logger.sinks_mut().push(Arc::new(
             FileSink::builder()
                 .level_filter(file_level)
@@ -87,17 +87,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
             auto_launch.disable()
         };
 
-        if let Err(e) = re {
-            error!("failed to setup auto-start: {e}");
+        let action = if autostart_on_boot {
+            "enable"
         } else {
-            info!(
-                "auto-start {} successfully",
-                if autostart_on_boot {
-                    "enabled"
-                } else {
-                    "disabled"
-                }
-            );
+            "disable"
+        };
+
+        if let Err(e) = re {
+            error!("failed to {action} auto-start: {e}");
+        } else {
+            info!("auto-start {action}d successfully",);
         }
     }
 
@@ -203,7 +202,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             && ProcTree::new()
                                 .is_ok_and(|proc_tree| proc_tree.is_in_tree(current_fg, process_id))
                         {
-                            debug!("skipping {proc_name:?}: fg process child");
+                            debug!("skipping {proc_name:?}: foreground process child");
                             return;
                         }
                     }
