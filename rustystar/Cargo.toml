@@ -8,6 +8,7 @@ authors = ["mokurin000"]
 documentation = "https://github.com/RustyStarX/RustyStar/wiki"
 
 [features]
+auto-launch = ["dep:auto-launch"]
 hide-to-tray = ["dep:tray-item"]
 
 [dependencies]
@@ -15,7 +16,6 @@ win32-ecoqos = { workspace = true }
 listen-new-proc = { workspace = true }
 
 ahash = "0.8.11"
-auto-launch = { git = "https://github.com/RustyStarX/auto-launch", branch = "chore/bump-deps" }
 compio = { version = "0.17.0", default-features = false, features = [
     "macros",
     "runtime",
@@ -41,6 +41,8 @@ windows = { version = "0.62.2", features = [
     "Win32_System_Registry",
 ] }
 windows-version = "0.1.4"
+
+auto-launch = { git = "https://github.com/RustyStarX/auto-launch", branch = "chore/bump-deps", optional = true }
 tray-item = { git = "https://github.com/RustyStarX/tray-item-rs", branch = "chore/bump-deps", optional = true }
 
 [build-dependencies]

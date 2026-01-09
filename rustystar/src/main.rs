@@ -91,6 +91,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         .expect("failed to load configuration!");
     info!("loaded configuration: {config:#?}");
     let Config {
+        #[cfg_attr(not(feature = "auto-launch"), allow(unused))]
         autostart_on_boot,
         listen_new_process,
         listen_foreground_events,
@@ -99,28 +100,31 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         whitelist,
     } = config;
 
-    info!("configuring autostart...");
-    let auto_launch = auto_launch::AutoLaunchBuilder::new()
-        .set_app_name(env!("CARGO_PKG_NAME"))
-        .set_app_path(&current_exe()?.to_string_lossy())
-        .build()?;
-    if auto_launch.is_enabled()? != autostart_on_boot {
-        let re = if autostart_on_boot {
-            auto_launch.enable()
-        } else {
-            auto_launch.disable()
-        };
+    #[cfg(feature = "auto-launch")]
+    {
+        info!("configuring autostart...");
+        let auto_launch = auto_launch::AutoLaunchBuilder::new()
+            .set_app_name(env!("CARGO_PKG_NAME"))
+            .set_app_path(&current_exe()?.to_string_lossy())
+            .build()?;
+        if auto_launch.is_enabled()? != autostart_on_boot {
+            let re = if autostart_on_boot {
+                auto_launch.enable()
+            } else {
+                auto_launch.disable()
+            };
 
-        let action = if autostart_on_boot {
-            "enable"
-        } else {
-            "disable"
-        };
+            let action = if autostart_on_boot {
+                "enable"
+            } else {
+                "disable"
+            };
 
-        if let Err(e) = re {
-            error!("failed to {action} auto-start: {e}");
-        } else {
-            info!("auto-start {action}d successfully",);
+            if let Err(e) = re {
+                error!("failed to {action} auto-start: {e}");
+            } else {
+                info!("auto-start {action}d successfully",);
+            }
         }
     }
 

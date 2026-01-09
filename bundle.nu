@@ -7,6 +7,7 @@ for $target in [aarch64-pc-windows-msvc x86_64-pc-windows-msvc] {
             --release
             --locked
             --target $target
+            --features auto-launch
             --features hide-to-tray
     )
     (
