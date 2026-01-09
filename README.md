@@ -40,7 +40,8 @@ Check [wiki page of configuration](https://github.com/RustyStarX/RustyStar/wiki/
 - [x] Event-based throttle for all new processes
 - [x] Recover processes on exit
   - [x] Ctrl-C handle
-  - [ ] windows wm_close event handle
+  - [ ] <s>windows wm_close event handle</s>
+    - [x] Implement hide to tray icon
 - [x] Support UWP applications
 - [x] Support `SYSTEM` privileged processes
   > You must run `RustyStar.exe` as administrator to throttle them!
