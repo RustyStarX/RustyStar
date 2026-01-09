@@ -37,6 +37,8 @@ windows = { version = "0.62.2", features = [
     "Win32_Security",
     # SHQueryUserNotificationStat
     "Win32_UI_Shell",
+    # ShellExecuteEx
+    "Win32_System_Registry",
 ] }
 windows-version = "0.1.4"
 tray-item = { git = "https://github.com/RustyStarX/tray-item-rs", branch = "chore/bump-deps", optional = true }

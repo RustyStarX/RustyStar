@@ -142,7 +142,10 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
         use tray_item::{IconSource, TrayItem};
         use windows::{
-            Win32::UI::{Shell::ShellExecuteW, WindowsAndMessaging::SW_SHOWNORMAL},
+            Win32::UI::{
+                Shell::{SHELLEXECUTEINFOW, ShellExecuteExW},
+                WindowsAndMessaging::SW_SHOWNORMAL,
+            },
             core::PCWSTR,
         };
 
@@ -161,25 +164,25 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         let config_file = Config::config_path().await?;
         tray.add_menu_item("Open config", move || unsafe {
             let lpfile = encode_path(&config_file);
-            ShellExecuteW(
-                None,
-                w!("openas"),
-                PCWSTR(lpfile.as_ptr()),
-                None,
-                None,
-                SW_SHOWNORMAL,
-            );
+            let mut execute_info = SHELLEXECUTEINFOW {
+                cbSize: size_of::<SHELLEXECUTEINFOW>() as _,
+                lpVerb: w!("openas"),
+                lpFile: PCWSTR(lpfile.as_ptr()),
+                nShow: SW_SHOWNORMAL.0,
+                ..Default::default()
+            };
+            _ = ShellExecuteExW((&mut execute_info) as *mut _);
         })?;
         tray.add_menu_item("Open log", move || unsafe {
             let lpfile = encode_path(&log_file);
-            ShellExecuteW(
-                None,
-                w!("openas"),
-                PCWSTR(lpfile.as_ptr()),
-                None,
-                None,
-                SW_SHOWNORMAL,
-            );
+            let mut execute_info = SHELLEXECUTEINFOW {
+                cbSize: size_of::<SHELLEXECUTEINFOW>() as _,
+                lpVerb: w!("openas"),
+                lpFile: PCWSTR(lpfile.as_ptr()),
+                nShow: SW_SHOWNORMAL.0,
+                ..Default::default()
+            };
+            _ = ShellExecuteExW((&mut execute_info) as *mut _);
         })?;
         tray.add_menu_item("Quit", || {
             info!("received quit signal, recovering...");
