@@ -2,6 +2,10 @@ name: Build Releases
 on:
   push:
     branches: [main]
+    paths:
+      - '**.rs'
+      - '**.toml'
+      - '**.lock'
 permissions:
   contents: write
 jobs:
@@ -29,7 +33,6 @@ jobs:
           prerelease: false
           make_latest: true
           draft: true
-
   build-and-upload:
     name: Build and Upload for ${{ matrix.target }}
     needs: create-release
@@ -69,10 +72,9 @@ jobs:
         with:
           files: ${{ matrix.target }}.tar.gz
           tag_name: r${{ needs.create-release.outputs.rev_count }}
-
   publish-release:
     name: Publish Release
-    needs: 
+    needs:
       - create-release
       - build-and-upload
     runs-on: ubuntu-latest
