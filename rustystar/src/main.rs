@@ -1,6 +1,5 @@
 #![cfg_attr(feature = "hide-to-tray", windows_subsystem = "windows")]
 
-use std::env::current_exe;
 use std::error::Error;
 use std::ffi::OsString;
 use std::path::PathBuf;
@@ -102,6 +101,8 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
 
     #[cfg(feature = "auto-launch")]
     {
+        use std::env::current_exe;
+
         info!("configuring autostart...");
         let auto_launch = auto_launch::AutoLaunchBuilder::new()
             .set_app_name(env!("CARGO_PKG_NAME"))
