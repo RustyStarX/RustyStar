@@ -1,7 +1,12 @@
+use std::error::Error;
+
 use spdlog::{debug, warn};
 use win32_ecoqos::process::toggle_efficiency_mode;
 use win32_ecoqos::utils::{Process, Processes};
 use win32_ecoqos::windows_result;
+use windows::Win32::Foundation::{ERROR_ALREADY_EXISTS, GetLastError};
+use windows::Win32::System::Threading::CreateMutexW;
+use windows::core::w;
 
 use crate::bypass::whitelisted;
 
@@ -68,4 +73,16 @@ pub fn toggle_all(enable: Option<bool>) -> windows_result::Result<()> {
     }
 
     Ok(())
+}
+
+pub fn singleton_check() -> Result<bool, Box<dyn Error + Send + Sync>> {
+    unsafe {
+        CreateMutexW(None, true, w!("RustyStar"))?;
+        // According to MSDN, the `CreateMutexW` will not fail, but you have
+        // to call `GetLastError` for checking instance
+        if GetLastError() == ERROR_ALREADY_EXISTS {
+            return Ok(false);
+        }
+    };
+    Ok(true)
 }

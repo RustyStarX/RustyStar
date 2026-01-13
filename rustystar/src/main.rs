@@ -10,33 +10,17 @@ use ahash::AHashSet;
 use spdlog::sink::FileSink;
 use spdlog::{Level, LevelFilter, debug, error, info, trace, warn};
 use win32_ecoqos::process::toggle_efficiency_mode;
+use windows::Win32::UI::Shell::{
+    QUNS_BUSY, QUNS_RUNNING_D3D_FULL_SCREEN, SHQueryUserNotificationState,
+};
 
 use rustystar::bypass::whitelisted;
 use rustystar::config::{Config, PROJECT_DIR};
 use rustystar::events::enter_event_loop;
 use rustystar::logging::log_error;
 use rustystar::privilege::try_enable_se_debug_privilege;
-use rustystar::utils::{ProcTree, process_child_process, toggle_all};
+use rustystar::utils::{ProcTree, process_child_process, singleton_check, toggle_all};
 use rustystar::{CURRENT_FOREGROUND_PID, PID_SENDER, WHITELIST};
-use windows::Win32::Foundation::{ERROR_ALREADY_EXISTS, GetLastError};
-use windows::Win32::System::Threading::CreateMutexW;
-use windows::Win32::UI::Shell::{
-    QUNS_BUSY, QUNS_RUNNING_D3D_FULL_SCREEN, SHQueryUserNotificationState,
-};
-use windows::core::w;
-
-fn singleton_check() -> Result<bool, Box<dyn Error + Send + Sync>> {
-    unsafe {
-        CreateMutexW(None, true, w!("RustyStar"))?;
-        // According to MSDN, the `CreateMutexW` will not fail, but you have
-        // to call `GetLastError` for checking instance
-        if GetLastError() == ERROR_ALREADY_EXISTS {
-            info!("found existing instance, exiting silently...");
-            return Ok(false);
-        }
-    };
-    Ok(true)
-}
 
 #[compio::main]
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
@@ -68,6 +52,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     spdlog::set_default_logger(logger);
 
     if let Ok(false) = singleton_check() {
+        info!("found existing instance, exiting silently...");
         return Ok(());
     }
 
