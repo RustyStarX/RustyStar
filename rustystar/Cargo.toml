@@ -19,6 +19,7 @@ ahash = "0.8.11"
 compio = { version = "0.17.0", default-features = false, features = [
     "macros",
     "runtime",
+    "time",
 ] }
 ctrlc = "3.4.6"
 directories = "6.0.0"

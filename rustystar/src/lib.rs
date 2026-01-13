@@ -10,6 +10,8 @@ pub mod config;
 pub mod events;
 pub mod logging;
 pub mod privilege;
+#[cfg(feature = "hide-to-tray")]
+pub mod tray;
 pub mod utils;
 
 pub static PID_SENDER: OnceLock<Sender<u32>> = OnceLock::new();
