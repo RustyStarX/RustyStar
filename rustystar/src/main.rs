@@ -100,34 +100,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     } = config;
 
     #[cfg(feature = "auto-launch")]
-    {
-        use std::env::current_exe;
-
-        info!("configuring autostart...");
-        let auto_launch = auto_launch::AutoLaunchBuilder::new()
-            .set_app_name(env!("CARGO_PKG_NAME"))
-            .set_app_path(&current_exe()?.to_string_lossy())
-            .build()?;
-        if auto_launch.is_enabled()? != autostart_on_boot {
-            let re = if autostart_on_boot {
-                auto_launch.enable()
-            } else {
-                auto_launch.disable()
-            };
-
-            let action = if autostart_on_boot {
-                "enable"
-            } else {
-                "disable"
-            };
-
-            if let Err(e) = re {
-                error!("failed to {action} auto-start: {e}");
-            } else {
-                info!("auto-start {action}d successfully",);
-            }
-        }
-    }
+    let _ = rustystar::auto_launch::setup_auto_launch(autostart_on_boot);
 
     info!("initializing whitelist...");
     let _ = WHITELIST.set(AHashSet::from_iter(

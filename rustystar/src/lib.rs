@@ -10,9 +10,12 @@ pub mod config;
 pub mod events;
 pub mod logging;
 pub mod privilege;
+pub mod utils;
+
+#[cfg(feature = "auto-launch")]
+pub mod auto_launch;
 #[cfg(feature = "hide-to-tray")]
 pub mod tray;
-pub mod utils;
 
 pub static PID_SENDER: OnceLock<Sender<u32>> = OnceLock::new();
 
